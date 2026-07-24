@@ -142,8 +142,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     initEmailJS();
     updateCartCount();
     setupIntersectionObserver();
-    // Set default payment toggle on page load
-    togglePaystackBtn('paystack');
 });
 
 // ----------------------------------------------------
@@ -799,15 +797,7 @@ function initForms() {
         const address = deliveryMode === 'delivery' ? document.getElementById('custAddress').value.trim() : 'Pickup at Lekki Kitchen';
         const dateTime = document.getElementById('custTime').value;
         const paymentMode = document.getElementById('custPayment').value;
-        const payment = paymentMode === 'bank_transfer' ? 'Bank Transfer (Access Bank)'
-            : paymentMode === 'paystack' ? 'Paystack Online Payment'
-            : 'Cash on Delivery';
-
-        // Block form submit for Paystack — handled by initiatePaystackPayment()
-        if (paymentMode === 'paystack') {
-            showToast('Please click \'Pay Securely with Paystack\' button to complete your payment.');
-            return;
-        }
+        const payment = paymentMode === 'bank_transfer' ? 'Bank Transfer (Access Bank)' : 'Cash on Delivery / Pickup';
 
         const orderNum = 'TB-' + Math.floor(10000 + Math.random() * 90000);
         const orderDate = new Date().toLocaleString();
@@ -935,131 +925,8 @@ function initForms() {
 }
 
 // ----------------------------------------------------
-// 10. PAYSTACK PAYMENT
+// 10. WHATSAPP ORDER NOTIFICATIONS
 // ----------------------------------------------------
-window.togglePaystackBtn = function (paymentValue) {
-    const paystackBtn = document.getElementById('paystackPayBtn');
-    const submitBtn = document.getElementById('submitOrderBtn');
-    if (paystackBtn && submitBtn) {
-        if (paymentValue === 'paystack') {
-            paystackBtn.style.display = 'block';
-            submitBtn.style.display = 'none';
-        } else {
-            paystackBtn.style.display = 'none';
-            submitBtn.style.display = 'flex';
-        }
-    }
-};
-
-window.initiatePaystackPayment = function () {
-    const name = document.getElementById('custName').value.trim();
-    const email = document.getElementById('custEmail').value.trim();
-    const phone = document.getElementById('custPhone').value.trim();
-    const address = deliveryMode === 'delivery' ? document.getElementById('custAddress').value.trim() : 'Pickup at Lekki Kitchen';
-    const dateTime = document.getElementById('custTime').value;
-
-    if (!name || !email || !phone) {
-        showToast('Please fill in all customer details first.');
-        return;
-    }
-
-    const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const deliveryFee = deliveryMode === 'delivery' ? 1500 : 0;
-    const grandTotal = subtotal + deliveryFee;
-    const amountKobo = grandTotal * 100; // Paystack uses Kobo (1/100 of Naira)
-
-    const orderNum = 'TB-' + Math.floor(10000 + Math.random() * 90000);
-
-    const publicKey = window.PAYSTACK_CONFIG?.publicKey || 'pk_test_YOUR_PAYSTACK_PUBLIC_KEY';
-
-    if (publicKey.includes('YOUR_PAYSTACK_PUBLIC_KEY')) {
-        showToast('Paystack not configured. Add your Public Key in index.html.');
-        return;
-    }
-
-    if (typeof PaystackPop === 'undefined') {
-        showToast('Paystack is loading. Please try again in a moment.');
-        return;
-    }
-
-    const handler = PaystackPop.setup({
-        key: publicKey,
-        email: email,
-        amount: amountKobo,
-        currency: 'NGN',
-        ref: orderNum,
-        metadata: {
-            custom_fields: [
-                { display_name: 'Customer Name', variable_name: 'customer_name', value: name },
-                { display_name: 'Phone', variable_name: 'phone', value: phone },
-                { display_name: 'Delivery Address', variable_name: 'address', value: address }
-            ]
-        },
-        callback: async function (response) {
-            const orderItemsPayload = cart.map(item => ({
-                id: item.id, name: item.name, price: item.price, quantity: item.quantity, details: item.details || null
-            }));
-
-            await apiSubmitOrder({
-                orderNum,
-                name, phone, email,
-                deliveryMode, address, dateTime,
-                paymentMode: `paystack:${response.reference}`,
-                subtotal, deliveryFee, grandTotal,
-                items: orderItemsPayload
-            });
-
-            apiSubscribeOrderStatus(orderNum, (liveStatus) => {
-                const titleEl = document.getElementById('statusTitle');
-                const textEl = document.getElementById('statusTimeText');
-                if (titleEl) titleEl.innerText = liveStatus;
-                if (textEl) textEl.innerText = `Live status updated: ${liveStatus}`;
-                showToast(`Order Status: ${liveStatus}`);
-            });
-
-            sendWhatsAppNotification({ orderNum, name, phone, address, grandTotal, paymentMode: 'Paystack (Paid)', items: orderItemsPayload });
-            sendOrderConfirmationEmail({ orderNum, name, email, phone, address, dateTime, grandTotal, paymentMode: 'Paystack Online Payment', items: orderItemsPayload });
-
-            cart = [];
-            updateCartCount();
-            document.getElementById('checkoutModal').style.display = 'none';
-
-            const receiptBox = document.getElementById('receiptContent');
-            receiptBox.innerHTML = `
-                <div class="receipt-header">
-                    <h4 style="font-family:'Playfair Display',serif;">Tomi's Special Bites</h4>
-                    <div class="order-num">RECEIPT ID: ${orderNum}</div>
-                    <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:4px;">Date: ${new Date().toLocaleString()}</div>
-                </div>
-                <div class="receipt-table">
-                    ${orderItemsPayload.map(i => `<div class="receipt-row"><span>${i.quantity}x ${i.name}</span><span>${formatNaira(i.price * i.quantity)}</span></div>`).join('')}
-                </div>
-                <div class="receipt-row total-row" style="padding:12px 0; border-top:1px dashed var(--border-color); margin-top:8px;">
-                    <span>Grand Total</span><span>${formatNaira(grandTotal)}</span>
-                </div>
-                <div style="margin-top:12px; padding-top:12px; border-top:1px dashed var(--border-color); font-size:0.8rem; color:var(--accent-primary); font-weight:600;">
-                    ✅ Payment Successful via Paystack (Ref: ${response.reference})
-                </div>
-            `;
-
-            document.getElementById('receiptModal').style.display = 'block';
-            showToast('Payment successful! Order confirmed 🎉');
-
-            const titleEl = document.getElementById('statusTitle');
-            const textEl = document.getElementById('statusTimeText');
-            if (titleEl) titleEl.innerText = 'Payment Confirmed ✅';
-            if (textEl) textEl.innerText = 'Your Paystack payment was received. Baking will start shortly!';
-
-            // Add WhatsApp notify button to receipt
-            sendWhatsAppNotification({ orderNum, name, phone, address, grandTotal, paymentMode: 'Paystack (Paid ✅)', items: orderItemsPayload });
-        },
-        onClose: function () {
-            showToast('Payment window closed. Choose another method if needed.');
-        }
-    });
-
-    handler.openIframe();
-};
 
 // ----------------------------------------------------
 // 11. WHATSAPP ORDER NOTIFICATIONS
@@ -1083,7 +950,7 @@ function sendWhatsAppNotification(order) {
     try {
         const waLink = buildWhatsAppLink(order);
 
-        // Inject a WhatsApp CTA button into the receipt modal
+        // Inject a WhatsApp CTA button into the receipt modal as backup/retry
         const receiptBox = document.getElementById('receiptContent');
         if (receiptBox) {
             // Remove any existing WA btn to avoid duplicates
@@ -1109,6 +976,11 @@ function sendWhatsAppNotification(order) {
                 Send Order to Tomi via WhatsApp`;
             receiptBox.appendChild(waBtn);
         }
+
+        // Redirect customer directly to WhatsApp with pre-filled order message
+        setTimeout(() => {
+            window.open(waLink, '_blank');
+        }, 800);
     } catch (err) {
         console.warn('[WhatsApp] Notification setup failed:', err);
     }

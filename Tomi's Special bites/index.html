@@ -663,24 +663,18 @@
                             </div>
                             <div class="form-group">
                                 <label for="custPayment">Payment Method</label>
-                                <select id="custPayment" class="form-input" required onchange="togglePaystackBtn(this.value)">
-                                    <option value="paystack">💳 Pay Online with Card / Bank (Paystack)</option>
-                                    <option value="bank_transfer">🏦 Bank Transfer (Access Bank: 0123456789)</option>
+                                <select id="custPayment" class="form-input" required>
+                                    <option value="bank_transfer" selected>🏦 Bank Transfer (Access Bank: 0123456789)
+                                    </option>
                                     <option value="cod">💵 Cash on Delivery / Pickup</option>
                                 </select>
                             </div>
                         </div>
-                        <div style="display:flex; gap:12px; flex-direction:column;">
-                            <div style="display:flex; gap:12px;">
-                                <button type="button" class="btn btn-secondary" style="flex:1; justify-content:center;"
-                                    onclick="goToCheckoutStep(1)">Back</button>
-                                <button type="submit" class="btn btn-primary" id="submitOrderBtn"
-                                    style="flex:2; justify-content:center;">Complete Order</button>
-                            </div>
-                            <button type="button" class="btn btn-primary" id="paystackPayBtn"
-                                onclick="initiatePaystackPayment()" style="width:100%; justify-content:center; background: linear-gradient(135deg, #011B33, #0070f3); display:none;">
-                                🔒 Pay Securely with Paystack
-                            </button>
+                        <div style="display:flex; gap:12px;">
+                            <button type="button" class="btn btn-secondary" style="flex:1; justify-content:center;"
+                                onclick="goToCheckoutStep(1)">Back</button>
+                            <button type="submit" class="btn btn-primary" id="submitOrderBtn"
+                                style="flex:2; justify-content:center;">Complete Order</button>
                         </div>
                     </div>
                 </form>
@@ -695,7 +689,8 @@
                         style="width: 56px; height: 56px; border-radius: 50%; background-color: var(--accent-primary); color: #ffffff; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; font-size: 1.8rem;">
                         ✓</div>
                     <h3 style="font-size: 1.6rem; margin-bottom: 4px;">Order Confirmed! 🎉</h3>
-                    <p style="color: var(--text-secondary); font-size: 0.95rem;">Thank you! A receipt has been sent to your email and a WhatsApp notification has been sent to our team.</p>
+                    <p style="color: var(--text-secondary); font-size: 0.95rem;">Thank you! A receipt has been sent to
+                        your email and a WhatsApp notification has been sent to our team.</p>
                 </div>
 
                 <div class="receipt-box" id="receiptContent">
@@ -766,9 +761,6 @@
     <!-- Supabase JS SDK & Backend Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- Paystack Inline JS -->
-    <script src="https://js.paystack.co/v1/inline.js"></script>
-
     <!-- EmailJS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
@@ -777,14 +769,6 @@
         window.SUPABASE_CONFIG = {
             url: 'https://feihkdzhohedxvpnvykx.supabase.co',
             anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZlaWhrZHpob2JlZHh2cG55eGt6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4OTA3MDIsImV4cCI6MjEwMDQ2NjcwMn0.AdsMnqWK8_VeiNcgkStjd79ytzZ5LXjXJvrdsdjaWNY'
-        };
-
-        // ===================================================
-        // PAYSTACK CONFIG — Replace with your Public Key
-        // Get it from: https://dashboard.paystack.com > Settings > API Keys
-        // ===================================================
-        window.PAYSTACK_CONFIG = {
-            publicKey: 'pk_test_YOUR_PAYSTACK_PUBLIC_KEY'
         };
 
         // ===================================================
