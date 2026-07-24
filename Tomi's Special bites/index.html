@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tomi's Special Bites | Premium Nigerian Cakes, Cupcakes & Chin-Chin</title>
+    <meta name="description"
+        content="Indulge in premium crunchy chin-chin, custom cakes, cupcakes, and luxury gift packages by Tomi's Special Bites. Order online for delivery.">
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body data-theme="light">
+    <!-- Header / Navigation -->
+    <header>
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <img src="assets/TOMI’S logo.svg" alt="Tomi's Special Bites Logo" class="logo-img">
+                Tomi's<span>Special Bites</span>
+            </a>
+            <nav class="nav-links" id="navLinks">
+                <a href="#hero" class="active">Home</a>
+                <a href="#featured">Featured</a>
+                <a href="#designs">Ready-Made Designs</a>
+                <a href="#catalog">Our Bites</a>
+                <a href="#story">Our Story</a>
+                <a href="#contact">Order Desk</a>
+            </nav>
+            <div class="nav-actions">
+                <!-- Theme Toggle Button -->
+                <button class="icon-btn" id="themeToggle" title="Toggle Light/Dark Theme" aria-label="Toggle theme">
+                    <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5" />
+                        <line x1="12" y1="1" x2="12" y2="3" />
+                        <line x1="12" y1="21" x2="12" y2="23" />
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                        <line x1="1" y1="12" x2="3" y2="12" />
+                        <line x1="21" y1="12" x2="23" y2="12" />
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                    </svg>
+                    <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                    </svg>
+                </button>
+                <!-- Order History Button -->
+                <button class="icon-btn" id="historyToggle" title="View Order History" aria-label="Order History">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                    </svg>
+                </button>
+                <!-- Admin Order Desk Button -->
+                <button class="icon-btn" id="adminToggle" title="Admin Order Desk" aria-label="Admin Order Desk">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2a10 10 0 1 0 10 10H12V2z" />
+                        <path d="M12 12L2.5 7.5" />
+                        <path d="M12 12v10" />
+                    </svg>
+                </button>
+                <!-- Shopping Cart Trigger -->
+                <button class="icon-btn" id="cartToggle" title="Open Shopping Basket" aria-label="Shopping Basket">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <path d="M16 10a4 4 0 0 1-8 0" />
+                    </svg>
+                    <span class="badge" id="cartBadge">0</span>
+                </button>
+                <!-- Mobile Navigation Toggle -->
+                <button class="menu-toggle" id="menuToggle" aria-label="Toggle Navigation Menu">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12" />
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <line x1="3" y1="18" x2="21" y2="18" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="pattern-border"></div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section class="hero" id="hero">
+            <div class="hero-container">
+                <div class="hero-text-panel animate-fade-in">
+                    <span class="hero-tag">Baked with Love</span>
+                    <h1>Tomi's Special <em>Bites</em> for Special Moments</h1>
+                    <p>Delighting your taste buds with Lagos' finest crunchy Chin-Chin, gourmet cupcakes, celebration
+                        cakes, and customized hamper gift packages.</p>
+                    <div class="hero-cta">
+                        <a href="#catalog" class="btn btn-primary">
+                            Order Now
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                                <polyline points="12 5 19 12 12 19" />
+                            </svg>
+                        </a>
+                        <a href="#designs" class="btn btn-secondary">Ready-Made Designs</a>
+                    </div>
+                </div>
+                <!-- Typographical Billboard Graphic -->
+                <div class="billboard-wrapper animate-float">
+                    <div class="billboard-card">
+                        <span class="billboard-tagline">Welcome to Tomi's</span>
+                        <h2 class="billboard-title">Tomi's Special<br><span>Bites</span></h2>
+                        <div class="billboard-cursive">Special Bites</div>
+                        <div class="billboard-badge">Premium Baking</div>
+                        <!-- Floating animated elements inside -->
+                        <span class="floating-item floating-cupcake" aria-hidden="true">🧁</span>
+                        <span class="floating-item floating-chinchin" aria-hidden="true">🍪</span>
+                        <div class="floating-sprinkles-circle"></div>
+                    </div>
+                    <!-- Steam Rising effect from fresh pastries -->
+                    <div class="steam-container" style="right: 5%;">
+                        <span class="steam-line"></span>
+                        <span class="steam-line"></span>
+                        <span class="steam-line"></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Products -->
+        <section class="featured" id="featured">
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="tag">Top Selections</span>
+                    <h2>Tomi's Signature Bites</h2>
+                    <p>Every bite is a special treat. Hand-crafted using premium recipes for your absolute delight.</p>
+                </div>
+                <div class="products-grid">
+                    <!-- Product 1: Chin-Chin -->
+                    <div class="product-card">
+                        <div class="product-img-wrapper">
+                            <span class="product-tag">Best Seller</span>
+                            <img src="assets/chinchin_jar.png" alt="Crunchy Sweet Chin-Chin" loading="lazy">
+                        </div>
+                        <div class="product-info">
+                            <h3>Crunchy Sweet Chin-Chin</h3>
+                            <p class="product-desc">Traditional Nigerian sweet bites, perfectly fried, rich in milk and
+                                butter, served in our signature client jars.</p>
+                            <div class="product-footer">
+                                <span class="product-price">₦4,500</span>
+                                <button class="add-cart-btn"
+                                    onclick="addToCart('p1', 'Crunchy Sweet Chin-Chin', 4500, 'assets/chinchin_jar.png')"
+                                    aria-label="Add to basket">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="12" y1="5" x2="12" y2="19" />
+                                        <line x1="5" y1="12" x2="19" y2="12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Product 2: Gift Box -->
+                    <div class="product-card">
+                        <div class="product-img-wrapper">
+                            <span class="product-tag">Specialty</span>
+                            <img src="assets/pastry_gift_box.png" alt="Premium Pastry Gift Box" loading="lazy">
+                        </div>
+                        <div class="product-info">
+                            <h3>Premium Pastry Gift Box</h3>
+                            <p class="product-desc">An elegant gift package containing cupcakes, cookies, custom bites,
+                                and a personalized ribbon note.</p>
+                            <div class="product-footer">
+                                <span class="product-price">₦15,000</span>
+                                <button class="add-cart-btn"
+                                    onclick="addToCart('p2', 'Premium Pastry Gift Box', 15000, 'assets/pastry_gift_box.png')"
+                                    aria-label="Add to basket">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="12" y1="5" x2="12" y2="19" />
+                                        <line x1="5" y1="12" x2="19" y2="12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Product 3: Cupcakes -->
+                    <div class="product-card">
+                        <div class="product-img-wrapper">
+                            <span class="product-tag">Deluxe</span>
+                            <img src="assets/deluxe_cupcakes.png" alt="Deluxe Velvet Cupcakes" loading="lazy">
+                        </div>
+                        <div class="product-info">
+                            <h3>Deluxe Velvet Cupcakes</h3>
+                            <p class="product-desc">Box of 6 cupcakes (chocolate, vanilla, red velvet) topped with rich
+                                whipped buttercream frostings.</p>
+                            <div class="product-footer">
+                                <span class="product-price">₦7,500</span>
+                                <button class="add-cart-btn"
+                                    onclick="addToCart('p3', 'Deluxe Velvet Cupcakes', 7500, 'assets/deluxe_cupcakes.png')"
+                                    aria-label="Add to basket">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="12" y1="5" x2="12" y2="19" />
+                                        <line x1="5" y1="12" x2="19" y2="12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ready-Made Cake Designs Showcase -->
+        <section class="ready-cakes" id="designs">
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="tag">Ready-Made Cake Designs</span>
+                    <h2>Select Your Celebration Cake Design</h2>
+                    <p>Explore Tomi's signature handcrafted cake designs, expertly baked and styled for weddings,
+                        birthdays, and special moments. Pick your favorite design to order instantly.</p>
+                </div>
+
+                <!-- Design Filter Tabs -->
+                <div class="catalog-controls" style="justify-content: center; margin-bottom: 32px;">
+                    <div class="category-tabs" id="readyCakesTabs">
+                        <button class="tab-btn active" data-category="all">All Designs</button>
+                        <button class="tab-btn" data-category="1tier">1-Tier Cakes</button>
+                        <button class="tab-btn" data-category="multitier">Multi-Tier Cakes</button>
+                        <button class="tab-btn" data-category="chocolate">Chocolate & Cocoa</button>
+                        <button class="tab-btn" data-category="deluxe">Deluxe Floral & Gold</button>
+                    </div>
+                </div>
+
+                <!-- Ready-Made Designs Grid -->
+                <div class="ready-cakes-grid" id="readyCakesGrid">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Menu / Catalog Section -->
+        <section class="catalog" id="catalog">
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="tag">Baking Catalog</span>
+                    <h2>Our Special Bites Menu</h2>
+                    <p>Order fresh cupcakes, crunchy chin-chin bags, savory meat pies, and gourmet celebration packages
+                        online for regional delivery.</p>
+                </div>
+                <div class="catalog-controls">
+                    <div class="category-tabs" id="catalogTabs">
+                        <button class="tab-btn active" data-category="all">All Bites</button>
+                        <button class="tab-btn" data-category="pastries">Pastries & Breads</button>
+                        <button class="tab-btn" data-category="cakes">Celebration Cakes</button>
+                        <button class="tab-btn" data-category="packages">Gift Packages</button>
+                    </div>
+                    <div class="search-wrapper">
+                        <svg style="position: absolute; left: 14px; top: 12px; color: var(--text-secondary);" width="18"
+                            height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
+                        <input type="text" class="search-input" id="catalogSearch" placeholder="Search bites...">
+                    </div>
+                </div>
+                <!-- Catalog Grid -->
+                <div class="products-grid" id="catalogGrid">
+                    <!-- Dynamic Menu Items populated in JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Our Story / Heritage Section -->
+        <section class="story" id="story">
+            <div class="section-container">
+                <div class="story-layout">
+                    <div class="story-image-grid">
+                        <div class="story-img-card tall">
+                            <img src="assets/pastry_gift_box.png" alt="Luxury Pastry Gift Box"
+                                style="width:100%; height:100%; object-fit:cover;" loading="lazy">
+                        </div>
+                        <div class="story-img-card short">
+                            <img src="assets/chinchin_jar.png" alt="Crunchy Chin-Chin Jar"
+                                style="width:100%; height:100%; object-fit:cover;" loading="lazy">
+                        </div>
+                        <div class="story-img-card short">
+                            <img src="assets/deluxe_cupcakes.png" alt="Deluxe Cupcakes"
+                                style="width:100%; height:100%; object-fit:cover;" loading="lazy">
+                        </div>
+                    </div>
+                    <div class="story-content">
+                        <span class="tag">Maison Tomi</span>
+                        <h3>Freshly Baked, <em>Beautifully Styled</em></h3>
+                        <p>At Tomi's Special Bites, we believe every celebration deserves a touch of luxury. Founded
+                            on a passion for outstanding regional flavors, we combine the crunchiest traditional
+                            Nigerian Chin-Chin recipe with modern cake artistry.</p>
+                        <p>We source local organic ingredients, use rich cream frostings, and assemble bespoke gift
+                            hampers designed to wow your guests. Whether it is a wedding, birthday, or a simple craving,
+                            we bake to make it unforgettable.</p>
+                        <div class="story-features">
+                            <div class="story-feature">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                </svg>
+                                <div>
+                                    <h5>Premium Quality</h5>
+                                    <p>Made with high-quality butter, rich milk, and absolute hygiene in small batches.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="story-feature">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+                                    <line x1="9" y1="9" x2="9.01" y2="9" />
+                                    <line x1="15" y1="9" x2="15.01" y2="9" />
+                                </svg>
+                                <div>
+                                    <h5>Signature Cake Designs</h5>
+                                    <p>Select ready-made celebration cake designs, sweet chin-chin jars, and customized
+                                        gift hampers easily online.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="testimonials">
+            <div class="section-container">
+                <div class="section-header">
+                    <span class="tag">Client Reviews</span>
+                    <h2>Loved by Our Guests</h2>
+                </div>
+                <div class="carousel-container">
+                    <div class="carousel-wrapper" id="carouselWrapper">
+                        <div class="carousel-slide">
+                            <span class="quote-icon">“</span>
+                            <p>Tomi's chin-chin is hands down the best in town! Super crunchy, not greasy, and the jar
+                                packaging looks so beautiful on my counter. It's my go-to gift.</p>
+                            <div class="author-info">
+                                <span class="author-name">Chinedu O.</span>
+                                <span class="author-role">Regular Client</span>
+                            </div>
+                        </div>
+                        <div class="carousel-slide">
+                            <span class="quote-icon">“</span>
+                            <p>I ordered the deluxe cupcakes gift package for my husband's birthday. The red velvet
+                                cupcakes were extremely moist, and the personalized ribbon tag made it so special.</p>
+                            <div class="author-info">
+                                <span class="author-name">Funmi A.</span>
+                                <span class="author-role">Lekki Resident</span>
+                            </div>
+                        </div>
+                        <div class="carousel-slide">
+                            <span class="quote-icon">“</span>
+                            <p>The online checkout and bank transfer flow was incredibly smooth. They prepared my double
+                                tier chocolate fudge cake and delivered it exactly on time!</p>
+                            <div class="author-info">
+                                <span class="author-name">Chioma N.</span>
+                                <span class="author-role">Event Planner</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-controls">
+                        <button class="carousel-btn" id="prevSlide" aria-label="Previous review">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="15 18 9 12 15 6" />
+                            </svg>
+                        </button>
+                        <button class="carousel-btn" id="nextSlide" aria-label="Next review">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="9 18 15 12 9 6" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact & Order Form -->
+        <section class="contact" id="contact">
+            <div class="section-container">
+                <div class="contact-layout">
+                    <div class="contact-info">
+                        <div>
+                            <span class="tag">Get In Touch</span>
+                            <h2 style="font-size: 2.5rem; margin-top: 10px; margin-bottom: 20px;">We'd Love to Hear From
+                                You</h2>
+                            <p style="color: var(--text-secondary);">Want to order a custom cake for a wedding, place
+                                bulk orders of chin-chin jars, or ask about our regional delivery reach? Let's connect.
+                            </p>
+                        </div>
+                        <div class="info-item">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
+                            </svg>
+                            <div>
+                                <h4>Kitchen Desk Hours</h4>
+                                <p>Monday - Sunday: 8:00 AM - 6:00 PM</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                            </svg>
+                            <div>
+                                <h4>Call / WhatsApp Pre-Orders</h4>
+                                <p>
+                                    <a href="tel:+2347046091762" class="contact-link">+234 704 609 1762</a> |
+                                    <a href="mailto:preciouskanyinsola1@gmail.com"
+                                        class="contact-link">preciouskanyinsola1@gmail.com</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Booking Form -->
+                    <div class="contact-form-panel">
+                        <h3 class="form-title">Inquire for Celebration Cakes / Hampers</h3>
+                        <form id="reservationForm">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="resName">Full Name</label>
+                                    <input type="text" id="resName" class="form-input" placeholder="Your Name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="resPhone">Phone Number</label>
+                                    <input type="tel" id="resPhone" class="form-input" placeholder="Your Phone"
+                                        required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="resGuests">Package Selection</label>
+                                    <select id="resGuests" class="form-input" required>
+                                        <option value="Celebration Cake" selected>Custom Celebration Cake</option>
+                                        <option value="Pastry Hampers">Deluxe Pastry Hampers</option>
+                                        <option value="Bulk Chin-Chin">Bulk Chin-Chin Jars</option>
+                                        <option value="Cupcake Boxes">Assorted Cupcake Boxes</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="resDateTime">Event Date</label>
+                                    <input type="date" id="resDateTime" class="form-input" required>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="resNotes">Details (Color theme, name inscriptions, custom
+                                        requests...)</label>
+                                    <textarea id="resNotes" class="form-input" style="height: 100px; resize: none;"
+                                        placeholder="Tell us more about what you want..."></textarea>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary"
+                                style="width: 100%; justify-content: center;">Send Custom Query</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-info">
+                <a href="#" class="logo" style="margin-bottom: 16px;">
+                    <img src="assets/TOMI’S logo.svg" alt="Tomi's Special Bites Logo" class="logo-img">
+                    Tomi's<span>Special Bites</span>
+                </a>
+                <p>Delighting you with premium crunchy chin-chin jars, luxury cakes, cupcakes, and customized packages.
+                </p>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/tomibites" target="_blank" class="social-btn"
+                        aria-label="Instagram">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                        </svg>
+                    </a>
+                    <a href="https://www.tiktok.com/@tomispecialbites?_r=1&_t=ZS-98DMeDtQrcA" target="_blank"
+                        class="social-btn" aria-label="TikTok">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.17-2.86-.74-3.94-1.74-.22-.2-.43-.43-.62-.67-.09 3.22-.03 6.45-.07 9.67-.06 1.86-.67 3.73-1.89 5.09-1.57 1.8-4.07 2.71-6.43 2.5-2.22-.12-4.39-1.22-5.59-3.1-1.39-2.14-1.55-5.06-.44-7.36.93-1.99 2.85-3.46 5.05-3.87.11-.02.21-.02.32-.04v4.14c-.6.1-1.22.35-1.7.77-.92.76-1.24 2.08-.8 3.22.4 1.12 1.59 1.83 2.77 1.67 1.16-.1 2.14-.99 2.37-2.14.08-.43.06-.87.06-1.31V0h4.17z" />
+                        </svg>
+                    </a>
+                    <a href="https://wa.me/message/ZVRYB4P2OW4KG1" target="_blank" class="social-btn"
+                        aria-label="WhatsApp">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.458 5.704 1.459h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>Explore</h4>
+                <ul>
+                    <li><a href="#featured">Signature Bites</a></li>
+                    <li><a href="#designs">Cake Designs</a></li>
+                    <li><a href="#catalog">Full Menu</a></li>
+                    <li><a href="#story">Our Story</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Information</h4>
+                <ul>
+                    <li><a href="#contact">Lekki Kitchen</a></li>
+                    <li><a href="#contact">Delivery Zone</a></li>
+                    <li><a href="#">Hamper Inquiries</a></li>
+                    <li><a href="#">FAQ / Storage Tips</a></li>
+                </ul>
+            </div>
+            <div class="footer-col footer-newsletter">
+                <h4>Tomi's Club</h4>
+                <p>Subscribe to receive news about weekly specials, seasonal gift hampers, and discount codes.</p>
+                <form class="newsletter-form" id="newsletterForm">
+                    <input type="email" class="form-input" placeholder="Enter your email" required>
+                    <button type="submit" class="btn btn-primary" style="padding: 10px 18px;" aria-label="Subscribe">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13" />
+                            <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                        </svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Tomi's Special Bites. All rights reserved.</p>
+            <p>Made with love for our clients.</p>
+        </div>
+    </footer>
+
+    <!-- Shopping Cart Drawer Drawer -->
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+    <div class="cart-drawer" id="cartDrawer">
+        <div class="cart-header">
+            <h3>Your Selected Basket</h3>
+            <button class="close-btn" id="cartClose" aria-label="Close cart">&times;</button>
+        </div>
+        <div class="cart-items" id="cartItemsContainer">
+            <!-- Items loaded dynamically -->
+        </div>
+        <div class="cart-footer">
+            <div class="cart-summary-row">
+                <span>Subtotal</span>
+                <span id="cartSubtotal">₦0</span>
+            </div>
+            <div class="cart-summary-row" id="deliveryRow">
+                <span>Delivery (Lagos Region)</span>
+                <span id="cartDeliveryFee">₦1,500</span>
+            </div>
+            <div class="cart-summary-row total">
+                <span>Total Amount</span>
+                <span id="cartTotal">₦0</span>
+            </div>
+            <button class="btn btn-primary checkout-btn" id="checkoutBtn">
+                Proceed to Checkout
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Overlay System -->
+    <div class="modal-overlay" id="modalOverlay">
+        <!-- 1. Checkout Form Modal -->
+        <div class="modal-content" id="checkoutModal" style="display:none;">
+            <button class="icon-btn modal-close-btn" onclick="closeAllModals()">&times;</button>
+            <div class="modal-body">
+                <h3 style="font-size: 1.8rem; margin-bottom: 24px;">Order Placement</h3>
+                <div class="checkout-steps">
+                    <span class="step-indicator active" id="stepIndicator1">1. Customer Info</span>
+                    <span class="step-indicator" id="stepIndicator2">2. Delivery & Transfer</span>
+                </div>
+
+                <form id="checkoutForm">
+                    <!-- Step 1: Customer Details -->
+                    <div class="checkout-step-panel active" id="stepPanel1">
+                        <div class="form-grid" style="grid-template-columns:1fr; margin-bottom:24px;">
+                            <div class="form-group">
+                                <label for="custName">Your Name</label>
+                                <input type="text" id="custName" class="form-input" placeholder="e.g. Chioma Adebayo"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label for="custPhone">Phone Number</label>
+                                <input type="tel" id="custPhone" class="form-input" placeholder="e.g. +234 812 345 6789"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label for="custEmail">Email Address</label>
+                                <input type="email" id="custEmail" class="form-input"
+                                    placeholder="e.g. chioma@gmail.com" required>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" style="width:100%; justify-content:center;"
+                            onclick="goToCheckoutStep(2)">
+                            Next: Delivery & Payment Details
+                        </button>
+                    </div>
+
+                    <!-- Step 2: Delivery/Payment Details -->
+                    <div class="checkout-step-panel" id="stepPanel2">
+                        <div class="delivery-options">
+                            <div class="delivery-card active" id="deliveryModeBtn"
+                                onclick="setDeliveryMode('delivery')">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                    style="margin: 0 auto 10px auto;">
+                                    <rect x="1" y="3" width="15" height="13" />
+                                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+                                    <circle cx="5.5" cy="18.5" r="2.5" />
+                                    <circle cx="18.5" cy="18.5" r="2.5" />
+                                </svg>
+                                <strong>Lagos Delivery</strong>
+                                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;">Zone Area
+                                    (₦1,500)</p>
+                            </div>
+                            <div class="delivery-card" id="pickupModeBtn" onclick="setDeliveryMode('pickup')">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                    style="margin: 0 auto 10px auto;">
+                                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                                    <polyline points="9 22 9 12 15 12 15 22" />
+                                </svg>
+                                <strong>Self-Pickup</strong>
+                                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;">Lekki
+                                    Kitchen (Free)</p>
+                            </div>
+                        </div>
+                        <div class="form-grid" style="grid-template-columns:1fr; margin-bottom:24px;">
+                            <div class="form-group" id="deliveryAddressGroup">
+                                <label for="custAddress">Delivery Address (Lagos Suburbs only)</label>
+                                <input type="text" id="custAddress" class="form-input"
+                                    placeholder="Apartment / Estate / Street name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="custTime">Preferred Pickup/Delivery Date & Time</label>
+                                <input type="datetime-local" id="custTime" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="custPayment">Payment Method</label>
+                                <select id="custPayment" class="form-input" required>
+                                    <option value="bank_transfer">Bank Transfer (Access Bank: 0123456789)</option>
+                                    <option value="cod">Cash on Delivery / Pickup</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:12px;">
+                            <button type="button" class="btn btn-secondary" style="flex:1; justify-content:center;"
+                                onclick="goToCheckoutStep(1)">Back</button>
+                            <button type="submit" class="btn btn-primary"
+                                style="flex:2; justify-content:center;">Complete Order</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 2. Order Success Receipt Modal -->
+        <div class="modal-content" id="receiptModal" style="display:none;">
+            <div class="modal-body">
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <div
+                        style="width: 56px; height: 56px; border-radius: 50%; background-color: var(--accent-primary); color: #ffffff; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; font-size: 1.8rem;">
+                        ✓</div>
+                    <h3 style="font-size: 1.6rem; margin-bottom: 4px;">Tomi's Bites Order Confirmed</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.95rem;">Thank you! Your transfer/order has been
+                        logged.</p>
+                </div>
+
+                <div class="receipt-box" id="receiptContent">
+                    <!-- Loaded dynamically via JS -->
+                </div>
+
+                <div class="receipt-status-card">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-primary);">
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                    </svg>
+                    <div class="receipt-status-text">
+                        <h5 id="statusTitle">Order Received</h5>
+                        <p id="statusTimeText">Awaiting transfer confirmation...</p>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 24px;"
+                    onclick="closeAllModals()">
+                    Continue Shopping
+                </button>
+            </div>
+        </div>
+
+        <!-- 4. Ready-Made Cake Design Spec Quick View Modal -->
+        <div class="modal-content" id="designModal" style="display:none; max-width: 580px;">
+            <button class="icon-btn modal-close-btn" onclick="closeAllModals()">&times;</button>
+            <div class="modal-body" id="designModalBody">
+                <!-- Dynamically rendered via app.js -->
+            </div>
+        </div>
+
+        <!-- 5. Admin Order Desk Modal -->
+        <div class="modal-content" id="adminModal" style="display:none; max-width: 800px;">
+            <button class="icon-btn modal-close-btn" onclick="closeAllModals()">&times;</button>
+            <div class="modal-body">
+                <div
+                    style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+                    <div>
+                        <h3 style="font-size: 1.6rem; margin-bottom: 4px; color: var(--text-primary);">Staff Order Desk
+                        </h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Manage incoming orders & update live
+                            status tracking.</p>
+                    </div>
+                    <button class="btn btn-secondary btn-sm" onclick="renderAdminOrderDesk()">Refresh Orders</button>
+                </div>
+                <div class="admin-orders-list" id="adminOrdersList">
+                    <!-- Populated dynamically via app.js -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Order History Modal -->
+        <div class="modal-content" id="historyModal" style="display:none;">
+            <button class="icon-btn modal-close-btn" onclick="closeAllModals()">&times;</button>
+            <div class="modal-body">
+                <h3 style="font-size: 1.8rem; margin-bottom: 24px;">Your Order History</h3>
+                <div class="history-list" id="historyList">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Containers -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Supabase JS SDK & Backend Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        window.SUPABASE_CONFIG = {
+            url: 'https://feihkdzhohedxvpnvykx.supabase.co',
+            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZlaWhrZHpob2JlZHh2cG55eGt6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4OTA3MDIsImV4cCI6MjEwMDQ2NjcwMn0.AdsMnqWK8_VeiNcgkStjd79ytzZ5LXjXJvrdsdjaWNY'
+        };
+    </script>
+    <script src="supabase.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
