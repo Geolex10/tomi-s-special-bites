@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tomi-s-special-bites",
+  "compatibility_date": "2026-07-24",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "Tomi's Special bites"
+  },
+  "compatibility_flags": [
+    "nodejs_compat"
+  ]
+}
