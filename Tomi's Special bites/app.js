@@ -139,8 +139,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     initAdminToggle();
     initCarousel();
     initForms();
+    initEmailJS();
     updateCartCount();
     setupIntersectionObserver();
+    // Set default payment toggle on page load
+    togglePaystackBtn('paystack');
 });
 
 // ----------------------------------------------------
@@ -646,22 +649,78 @@ window.closeAllModals = function () {
     if (designModal) designModal.style.display = 'none';
     const adminModal = document.getElementById('adminModal');
     if (adminModal) adminModal.style.display = 'none';
+    const adminPinModal = document.getElementById('adminPinModal');
+    if (adminPinModal) adminPinModal.style.display = 'none';
+    pinState.entered = '';
+    updatePinDisplay();
 };
 
 // ----------------------------------------------------
-// 9. ADMIN ORDER DESK FUNCTIONS
+// 9. ADMIN ORDER DESK — PIN PROTECTION
 // ----------------------------------------------------
+const pinState = { entered: '', attempts: 0, lockedUntil: 0 };
+
 function initAdminToggle() {
     const adminBtn = document.getElementById('adminToggle');
     if (adminBtn) {
         adminBtn.addEventListener('click', () => {
+            const now = Date.now();
+            if (pinState.lockedUntil > now) {
+                const secs = Math.ceil((pinState.lockedUntil - now) / 1000);
+                showToast(`Too many attempts. Try again in ${secs}s.`);
+                return;
+            }
             closeAllModals();
             document.getElementById('modalOverlay').classList.add('open');
-            document.getElementById('adminModal').style.display = 'block';
-            renderAdminOrderDesk();
+            document.getElementById('adminPinModal').style.display = 'block';
+            pinState.entered = '';
+            updatePinDisplay();
         });
     }
 }
+
+function updatePinDisplay() {
+    for (let i = 0; i < 4; i++) {
+        const dot = document.getElementById(`pin${i}`);
+        if (dot) dot.classList.toggle('filled', i < pinState.entered.length);
+    }
+}
+
+window.pinInput = function (digit) {
+    if (pinState.entered.length < 4) {
+        pinState.entered += digit;
+        updatePinDisplay();
+        if (pinState.entered.length === 4) pinConfirm();
+    }
+};
+
+window.pinClear = function () {
+    pinState.entered = pinState.entered.slice(0, -1);
+    updatePinDisplay();
+};
+
+window.pinConfirm = function () {
+    const correctPin = window.ADMIN_PIN || '1234';
+    if (pinState.entered === correctPin) {
+        pinState.attempts = 0;
+        pinState.entered = '';
+        updatePinDisplay();
+        document.getElementById('adminPinModal').style.display = 'none';
+        document.getElementById('adminModal').style.display = 'block';
+        renderAdminOrderDesk();
+    } else {
+        pinState.attempts++;
+        pinState.entered = '';
+        updatePinDisplay();
+        const errEl = document.getElementById('pinError');
+        if (pinState.attempts >= 3) {
+            pinState.lockedUntil = Date.now() + 120000;
+            if (errEl) errEl.textContent = 'Too many failed attempts. Locked for 2 minutes.';
+        } else {
+            if (errEl) errEl.textContent = `Incorrect PIN. ${3 - pinState.attempts} attempt(s) remaining.`;
+        }
+    }
+};
 
 async function renderAdminOrderDesk() {
     const container = document.getElementById('adminOrdersList');
@@ -740,7 +799,15 @@ function initForms() {
         const address = deliveryMode === 'delivery' ? document.getElementById('custAddress').value.trim() : 'Pickup at Lekki Kitchen';
         const dateTime = document.getElementById('custTime').value;
         const paymentMode = document.getElementById('custPayment').value;
-        const payment = paymentMode === 'bank_transfer' ? 'Bank Transfer (Access Bank)' : 'Cash on Delivery';
+        const payment = paymentMode === 'bank_transfer' ? 'Bank Transfer (Access Bank)'
+            : paymentMode === 'paystack' ? 'Paystack Online Payment'
+            : 'Cash on Delivery';
+
+        // Block form submit for Paystack — handled by initiatePaystackPayment()
+        if (paymentMode === 'paystack') {
+            showToast('Please click \'Pay Securely with Paystack\' button to complete your payment.');
+            return;
+        }
 
         const orderNum = 'TB-' + Math.floor(10000 + Math.random() * 90000);
         const orderDate = new Date().toLocaleString();
@@ -802,7 +869,7 @@ function initForms() {
         `;
 
         // Submit to Supabase / Persistent DB
-        await apiSubmitOrder({
+        const submitResult = await apiSubmitOrder({
             orderNum,
             name,
             phone,
@@ -822,9 +889,15 @@ function initForms() {
             const titleEl = document.getElementById('statusTitle');
             const textEl = document.getElementById('statusTimeText');
             if (titleEl) titleEl.innerText = liveStatus;
-            if (textEl) textEl.innerText = `Live status updated from server: ${liveStatus}`;
+            if (textEl) textEl.innerText = `Live status updated: ${liveStatus}`;
             showToast(`Order Status Update: ${liveStatus}`);
         });
+
+        // Send WhatsApp notification to Tomi
+        sendWhatsAppNotification({ orderNum, name, phone, address, grandTotal, paymentMode, items: orderItemsPayload });
+
+        // Send Email receipt to customer
+        sendOrderConfirmationEmail({ orderNum, name, email, phone, address, dateTime, grandTotal, paymentMode, items: orderItemsPayload });
 
         cart = [];
         updateCartCount();
@@ -859,6 +932,229 @@ function initForms() {
     });
 
     document.getElementById('historyToggle').addEventListener('click', openHistoryModal);
+}
+
+// ----------------------------------------------------
+// 10. PAYSTACK PAYMENT
+// ----------------------------------------------------
+window.togglePaystackBtn = function (paymentValue) {
+    const paystackBtn = document.getElementById('paystackPayBtn');
+    const submitBtn = document.getElementById('submitOrderBtn');
+    if (paystackBtn && submitBtn) {
+        if (paymentValue === 'paystack') {
+            paystackBtn.style.display = 'block';
+            submitBtn.style.display = 'none';
+        } else {
+            paystackBtn.style.display = 'none';
+            submitBtn.style.display = 'flex';
+        }
+    }
+};
+
+window.initiatePaystackPayment = function () {
+    const name = document.getElementById('custName').value.trim();
+    const email = document.getElementById('custEmail').value.trim();
+    const phone = document.getElementById('custPhone').value.trim();
+    const address = deliveryMode === 'delivery' ? document.getElementById('custAddress').value.trim() : 'Pickup at Lekki Kitchen';
+    const dateTime = document.getElementById('custTime').value;
+
+    if (!name || !email || !phone) {
+        showToast('Please fill in all customer details first.');
+        return;
+    }
+
+    const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const deliveryFee = deliveryMode === 'delivery' ? 1500 : 0;
+    const grandTotal = subtotal + deliveryFee;
+    const amountKobo = grandTotal * 100; // Paystack uses Kobo (1/100 of Naira)
+
+    const orderNum = 'TB-' + Math.floor(10000 + Math.random() * 90000);
+
+    const publicKey = window.PAYSTACK_CONFIG?.publicKey || 'pk_test_YOUR_PAYSTACK_PUBLIC_KEY';
+
+    if (publicKey.includes('YOUR_PAYSTACK_PUBLIC_KEY')) {
+        showToast('Paystack not configured. Add your Public Key in index.html.');
+        return;
+    }
+
+    if (typeof PaystackPop === 'undefined') {
+        showToast('Paystack is loading. Please try again in a moment.');
+        return;
+    }
+
+    const handler = PaystackPop.setup({
+        key: publicKey,
+        email: email,
+        amount: amountKobo,
+        currency: 'NGN',
+        ref: orderNum,
+        metadata: {
+            custom_fields: [
+                { display_name: 'Customer Name', variable_name: 'customer_name', value: name },
+                { display_name: 'Phone', variable_name: 'phone', value: phone },
+                { display_name: 'Delivery Address', variable_name: 'address', value: address }
+            ]
+        },
+        callback: async function (response) {
+            const orderItemsPayload = cart.map(item => ({
+                id: item.id, name: item.name, price: item.price, quantity: item.quantity, details: item.details || null
+            }));
+
+            await apiSubmitOrder({
+                orderNum,
+                name, phone, email,
+                deliveryMode, address, dateTime,
+                paymentMode: `paystack:${response.reference}`,
+                subtotal, deliveryFee, grandTotal,
+                items: orderItemsPayload
+            });
+
+            apiSubscribeOrderStatus(orderNum, (liveStatus) => {
+                const titleEl = document.getElementById('statusTitle');
+                const textEl = document.getElementById('statusTimeText');
+                if (titleEl) titleEl.innerText = liveStatus;
+                if (textEl) textEl.innerText = `Live status updated: ${liveStatus}`;
+                showToast(`Order Status: ${liveStatus}`);
+            });
+
+            sendWhatsAppNotification({ orderNum, name, phone, address, grandTotal, paymentMode: 'Paystack (Paid)', items: orderItemsPayload });
+            sendOrderConfirmationEmail({ orderNum, name, email, phone, address, dateTime, grandTotal, paymentMode: 'Paystack Online Payment', items: orderItemsPayload });
+
+            cart = [];
+            updateCartCount();
+            document.getElementById('checkoutModal').style.display = 'none';
+
+            const receiptBox = document.getElementById('receiptContent');
+            receiptBox.innerHTML = `
+                <div class="receipt-header">
+                    <h4 style="font-family:'Playfair Display',serif;">Tomi's Special Bites</h4>
+                    <div class="order-num">RECEIPT ID: ${orderNum}</div>
+                    <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:4px;">Date: ${new Date().toLocaleString()}</div>
+                </div>
+                <div class="receipt-table">
+                    ${orderItemsPayload.map(i => `<div class="receipt-row"><span>${i.quantity}x ${i.name}</span><span>${formatNaira(i.price * i.quantity)}</span></div>`).join('')}
+                </div>
+                <div class="receipt-row total-row" style="padding:12px 0; border-top:1px dashed var(--border-color); margin-top:8px;">
+                    <span>Grand Total</span><span>${formatNaira(grandTotal)}</span>
+                </div>
+                <div style="margin-top:12px; padding-top:12px; border-top:1px dashed var(--border-color); font-size:0.8rem; color:var(--accent-primary); font-weight:600;">
+                    ✅ Payment Successful via Paystack (Ref: ${response.reference})
+                </div>
+            `;
+
+            document.getElementById('receiptModal').style.display = 'block';
+            showToast('Payment successful! Order confirmed 🎉');
+
+            const titleEl = document.getElementById('statusTitle');
+            const textEl = document.getElementById('statusTimeText');
+            if (titleEl) titleEl.innerText = 'Payment Confirmed ✅';
+            if (textEl) textEl.innerText = 'Your Paystack payment was received. Baking will start shortly!';
+
+            // Add WhatsApp notify button to receipt
+            sendWhatsAppNotification({ orderNum, name, phone, address, grandTotal, paymentMode: 'Paystack (Paid ✅)', items: orderItemsPayload });
+        },
+        onClose: function () {
+            showToast('Payment window closed. Choose another method if needed.');
+        }
+    });
+
+    handler.openIframe();
+};
+
+// ----------------------------------------------------
+// 11. WHATSAPP ORDER NOTIFICATIONS
+// ----------------------------------------------------
+function buildWhatsAppLink(order) {
+    const itemsList = order.items.map(i => `• ${i.quantity}x ${i.name} (${formatNaira(i.price * i.quantity)})`).join('%0A');
+    const message =
+        `%F0%9F%A7%81%20*NEW%20ORDER%20%E2%80%94%20Tomi%27s%20Special%20Bites*%0A%0A` +
+        `%F0%9F%93%A6%20*Order%20ID%3A*%20${encodeURIComponent(order.orderNum)}%0A` +
+        `%F0%9F%91%A4%20*Customer%3A*%20${encodeURIComponent(order.name)}%20(${encodeURIComponent(order.phone)})%0A` +
+        `%F0%9F%93%8D%20*Address%3A*%20${encodeURIComponent(order.address)}%0A%0A` +
+        `%F0%9F%9B%92%20*Items%3A*%0A${itemsList}%0A%0A` +
+        `%F0%9F%92%B3%20*Payment%3A*%20${encodeURIComponent(order.paymentMode)}%0A` +
+        `%F0%9F%92%B0%20*Total%3A*%20%E2%82%A6${order.grandTotal.toLocaleString()}%0A%0A` +
+        `Please%20confirm%20and%20begin%20preparation!%20%E2%9C%85`;
+    const waNumber = '2347046091762';
+    return `https://wa.me/${waNumber}?text=${message}`;
+}
+
+function sendWhatsAppNotification(order) {
+    try {
+        const waLink = buildWhatsAppLink(order);
+
+        // Inject a WhatsApp CTA button into the receipt modal
+        const receiptBox = document.getElementById('receiptContent');
+        if (receiptBox) {
+            // Remove any existing WA btn to avoid duplicates
+            const existing = document.getElementById('waReceiptBtn');
+            if (existing) existing.remove();
+
+            const waBtn = document.createElement('a');
+            waBtn.id = 'waReceiptBtn';
+            waBtn.href = waLink;
+            waBtn.target = '_blank';
+            waBtn.rel = 'noopener';
+            waBtn.style.cssText = [
+                'display:flex', 'align-items:center', 'justify-content:center', 'gap:8px',
+                'width:100%', 'padding:12px', 'margin-top:12px',
+                'background:#25D366', 'color:#fff', 'border-radius:12px',
+                'font-weight:700', 'font-size:0.95rem', 'text-decoration:none',
+                'cursor:pointer', 'transition:opacity 0.2s'
+            ].join(';');
+            waBtn.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.458 5.704 1.459h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                </svg>
+                Send Order to Tomi via WhatsApp`;
+            receiptBox.appendChild(waBtn);
+        }
+    } catch (err) {
+        console.warn('[WhatsApp] Notification setup failed:', err);
+    }
+}
+
+
+// ----------------------------------------------------
+// 12. EMAILJS ORDER CONFIRMATION
+// ----------------------------------------------------
+function initEmailJS() {
+    const config = window.EMAILJS_CONFIG;
+    if (config && config.publicKey && !config.publicKey.includes('YOUR_EMAILJS')) {
+        if (typeof emailjs !== 'undefined') {
+            emailjs.init(config.publicKey);
+            console.log('[EmailJS] Initialized successfully.');
+        }
+    } else {
+        console.info('[EmailJS] Running without email config. Add your EmailJS credentials in index.html.');
+    }
+}
+
+async function sendOrderConfirmationEmail(order) {
+    const config = window.EMAILJS_CONFIG;
+    if (!config || config.publicKey.includes('YOUR_EMAILJS') || typeof emailjs === 'undefined') {
+        console.info('[EmailJS] Email not sent — credentials not configured.');
+        return;
+    }
+
+    const itemsList = order.items.map(i => `${i.quantity}x ${i.name} — ₦${(i.price * i.quantity).toLocaleString()}`).join('\n');
+
+    try {
+        await emailjs.send(config.serviceId, config.templateId, {
+            to_name: order.name,
+            to_email: order.email,
+            order_num: order.orderNum,
+            order_items: itemsList,
+            order_total: `₦${order.grandTotal.toLocaleString()}`,
+            delivery_address: order.address,
+            delivery_time: order.dateTime,
+            payment_method: order.paymentMode,
+            phone: order.phone
+        });
+        console.log('[EmailJS] Confirmation email sent to', order.email);
+    } catch (err) {
+        console.warn('[EmailJS] Failed to send email:', err);
+    }
 }
 
 function simulateOrderStatus(paymentMode) {
@@ -898,7 +1194,7 @@ function simulateOrderStatus(paymentMode) {
     }, 28000);
 }
 
-function openHistoryModal() {
+async function openHistoryModal() {
     closeAllModals();
     const overlay = document.getElementById('modalOverlay');
     const modal = document.getElementById('historyModal');
@@ -906,11 +1202,12 @@ function openHistoryModal() {
 
     overlay.classList.add('open');
     modal.style.display = 'block';
+    list.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-secondary);">Loading your orders...</div>';
 
-    const orderHistory = JSON.parse(localStorage.getItem('zuri_order_history') || '[]');
+    const orderHistory = await apiGetOrderHistory();
     list.innerHTML = '';
 
-    if (orderHistory.length === 0) {
+    if (!orderHistory || orderHistory.length === 0) {
         list.innerHTML = `<div style="text-align:center; padding: 40px 0; color:var(--text-secondary);">You have not placed any orders yet.</div>`;
         return;
     }
@@ -918,17 +1215,22 @@ function openHistoryModal() {
     orderHistory.forEach(order => {
         const card = document.createElement('div');
         card.className = 'history-card';
+
+        const itemsList = Array.isArray(order.items)
+            ? order.items.map(i => `${i.quantity}x ${i.name}`).join(', ')
+            : 'Order items';
+
         card.innerHTML = `
             <div class="history-card-header">
                 <h4>${order.orderNum}</h4>
-                <span>${order.date}</span>
+                <span>${new Date(order.createdAt).toLocaleString()}</span>
             </div>
             <div class="history-card-body">
-                <p style="margin-bottom:8px;"><strong>Items:</strong> ${order.items.join(', ')}</p>
-                <p><strong>Mode:</strong> ${order.mode.toUpperCase()}</p>
+                <p style="margin-bottom:8px;"><strong>Items:</strong> ${itemsList}</p>
+                <p><strong>Mode:</strong> ${order.deliveryMode?.toUpperCase() || 'N/A'}</p>
             </div>
             <div class="history-card-footer">
-                <span class="history-card-total">Total Paid: ${formatNaira(order.total)}</span>
+                <span class="history-card-total">Total: ${formatNaira(order.grandTotal)}</span>
                 <span class="history-card-status">${order.status}</span>
             </div>
         `;
