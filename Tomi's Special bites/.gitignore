@@ -1,0 +1,20 @@
+# Cloudflare / Wrangler
+.wrangler/
+.dev.vars
+
+# Node (if ever added)
+node_modules/
+npm-debug.log*
+
+# Environment / Secrets
+.env
+.env.local
+.env.production
+
+# OS clutter
+.DS_Store
+Thumbs.db
+
+# Editor settings
+.vscode/
+.idea/
