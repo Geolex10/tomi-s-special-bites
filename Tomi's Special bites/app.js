@@ -794,10 +794,10 @@ function initForms() {
         const name = document.getElementById('custName').value.trim();
         const phone = document.getElementById('custPhone').value.trim();
         const email = document.getElementById('custEmail').value.trim();
-        const address = deliveryMode === 'delivery' ? document.getElementById('custAddress').value.trim() : 'Pickup at Lekki Kitchen';
+        const address = deliveryMode === 'delivery' ? document.getElementById('custAddress').value.trim() : 'Pickup at Oye-Ekiti Kitchen (F&B Villa, Oye-Egbo)';
         const dateTime = document.getElementById('custTime').value;
         const paymentMode = document.getElementById('custPayment').value;
-        const payment = paymentMode === 'bank_transfer' ? 'Bank Transfer (Access Bank)' : 'Cash on Delivery / Pickup';
+        const payment = paymentMode === 'bank_transfer' ? 'Moniepoint Transfer (7046091762 - Ijamoyewa Precious Kanyinsola)' : 'Cash on Delivery / Pickup';
 
         const orderNum = 'TB-' + Math.floor(10000 + Math.random() * 90000);
         const orderDate = new Date().toLocaleString();
@@ -854,7 +854,7 @@ function initForms() {
                 <div><strong>Delivery Target:</strong> ${dateTime.replace('T', ' ')}</div>
                 <div><strong>Address:</strong> ${address}</div>
                 <div><strong>Paid via:</strong> ${payment}</div>
-                ${paymentMode === 'bank_transfer' ? `<div style="color: var(--accent-primary); margin-top: 4px; font-weight: 600;">*Please transfer total to Access Bank: 0123456789 (Tomi's Special Bites) and <a href="https://wa.me/message/ZVRYB4P2OW4KG1" target="_blank" style="text-decoration: underline; color: var(--accent-secondary); font-weight: 700;">share WhatsApp receipt</a>.</div>` : ''}
+                ${paymentMode === 'bank_transfer' ? `<div style="color: var(--accent-primary); margin-top: 4px; font-weight: 600;">*Please transfer total to Moniepoint: 7046091762 (Account Name: Ijamoyewa Precious Kanyinsola) and <a href="https://wa.me/message/ZVRYB4P2OW4KG1" target="_blank" style="text-decoration: underline; color: var(--accent-secondary); font-weight: 700;">share WhatsApp receipt</a>.</div>` : ''}
             </div>
         `;
 
@@ -1035,7 +1035,7 @@ function simulateOrderStatus(paymentMode) {
 
     if (paymentMode === 'bank_transfer') {
         titleEl.innerText = "Awaiting Bank Transfer";
-        textEl.innerText = "Please transfer amount to Access Bank: 0123456789. We will start baking immediately after confirmation.";
+        textEl.innerText = "Please transfer amount to Moniepoint: 7046091762 (Ijamoyewa Precious Kanyinsola). We will start baking immediately after confirmation.";
 
         setTimeout(() => {
             if (document.getElementById('receiptModal').style.display === 'block') {
@@ -1059,8 +1059,8 @@ function simulateOrderStatus(paymentMode) {
 
     setTimeout(() => {
         if (document.getElementById('receiptModal').style.display === 'block') {
-            titleEl.innerText = deliveryMode === 'delivery' ? "Out for Delivery 🛵" : "Ready for Pickup at Lekki Kitchen! 🛍️";
-            textEl.innerText = deliveryMode === 'delivery' ? "Dispatch rider is heading to your Lekki address." : "Boxed and ready at 15 Orchid Road. Visit us!";
+            titleEl.innerText = deliveryMode === 'delivery' ? "Out for Delivery 🛵" : "Ready for Pickup at Oye-Ekiti Kitchen! 🛍️";
+            textEl.innerText = deliveryMode === 'delivery' ? "Dispatch rider is heading to your Ekiti address." : "Boxed and ready at F&B Villa, Oye-Egbo, Oye-Ekiti. Visit us!";
             showToast("Your bites are ready!");
         }
     }, 28000);
