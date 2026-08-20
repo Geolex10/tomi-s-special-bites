@@ -226,6 +226,7 @@ async function renderCatalog() {
     const searchInput = document.getElementById('catalogSearch');
 
     let itemsSource = await apiGetMenuItems() || MENU_ITEMS;
+    window.CURRENT_MENU_ITEMS = itemsSource;
     let activeCategory = 'all';
     let searchQuery = '';
 
@@ -440,6 +441,7 @@ async function initReadyMadeCakeDesigns() {
     if (!grid || !tabs) return;
 
     let designsSource = await apiGetReadyMadeDesigns() || READY_MADE_DESIGNS;
+    window.CURRENT_READY_DESIGNS = designsSource;
     let activeFilter = 'all';
 
     renderReadyCakes();
@@ -649,8 +651,15 @@ window.closeAllModals = function () {
     if (adminModal) adminModal.style.display = 'none';
     const adminPinModal = document.getElementById('adminPinModal');
     if (adminPinModal) adminPinModal.style.display = 'none';
+    const editItemModal = document.getElementById('editItemModal');
+    if (editItemModal) editItemModal.style.display = 'none';
     pinState.entered = '';
     updatePinDisplay();
+};
+
+window.closeEditItemModal = function () {
+    const editItemModal = document.getElementById('editItemModal');
+    if (editItemModal) editItemModal.style.display = 'none';
 };
 
 // ----------------------------------------------------
@@ -780,6 +789,353 @@ window.changeOrderStatus = async function (orderNum, newStatus) {
         renderAdminOrderDesk();
     } else {
         showToast('Failed to update status.');
+    }
+};
+
+// ----------------------------------------------------
+// 9b. ADMIN MANAGER TABS & PICTURE EDITOR LOGIC
+// ----------------------------------------------------
+window.switchAdminTab = function (tabName) {
+    const tabs = ['orders', 'menu', 'designs'];
+    tabs.forEach(t => {
+        const btnId = `tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`;
+        const panelId = `adminPanel${t.charAt(0).toUpperCase() + t.slice(1)}`;
+        const btn = document.getElementById(btnId);
+        const panel = document.getElementById(panelId);
+        if (btn) btn.classList.toggle('active', t === tabName);
+        if (panel) panel.style.display = t === tabName ? 'block' : 'none';
+    });
+
+    if (tabName === 'orders') renderAdminOrderDesk();
+    if (tabName === 'menu') renderAdminMenuItems();
+    if (tabName === 'designs') renderAdminCakeDesigns();
+};
+
+async function renderAdminMenuItems() {
+    const container = document.getElementById('adminMenuItemsList');
+    if (!container) return;
+
+    container.innerHTML = '<div style="text-align:center; padding:24px; color:var(--text-secondary);">Loading catalog items...</div>';
+    const items = await apiGetMenuItems() || window.CURRENT_MENU_ITEMS || MENU_ITEMS;
+    window.CURRENT_MENU_ITEMS = items;
+
+    if (!items || items.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding:24px; color:var(--text-secondary);">No menu items found. Click "+ Add New Item" to create one.</div>';
+        return;
+    }
+
+    container.innerHTML = '';
+    items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'admin-item-card';
+        const itemJson = JSON.stringify(item).replace(/'/g, "&apos;");
+        card.innerHTML = `
+            <div class="admin-item-img-box">
+                <img src="${item.img}" alt="${item.name}" onerror="this.src='assets/hero_bg.png'">
+            </div>
+            <div class="admin-item-title">${item.name}</div>
+            <div class="admin-item-price">${formatNaira(item.price)} • <span style="font-size:0.8rem; font-weight:normal; text-transform:capitalize;">${item.category}</span></div>
+            <div class="admin-item-desc">${item.desc}</div>
+            <button class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; margin-top: auto;" onclick='openEditMenuModal(${itemJson})'>
+                ✏️ Edit Picture & Details
+            </button>
+        `;
+        container.appendChild(card);
+    });
+}
+
+async function renderAdminCakeDesigns() {
+    const container = document.getElementById('adminDesignsItemsList');
+    if (!container) return;
+
+    container.innerHTML = '<div style="text-align:center; padding:24px; color:var(--text-secondary);">Loading cake designs...</div>';
+    const designs = await apiGetReadyMadeDesigns() || window.CURRENT_READY_DESIGNS || READY_MADE_DESIGNS;
+    window.CURRENT_READY_DESIGNS = designs;
+
+    if (!designs || designs.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding:24px; color:var(--text-secondary);">No cake designs found. Click "+ Add New Cake Design" to create one.</div>';
+        return;
+    }
+
+    container.innerHTML = '';
+    designs.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'admin-item-card';
+        const designJson = JSON.stringify(item).replace(/'/g, "&apos;");
+        card.innerHTML = `
+            <div class="admin-item-img-box">
+                <img src="${item.img}" alt="${item.name}" onerror="this.src='assets/hero_bg.png'">
+            </div>
+            <div class="admin-item-title">${item.name}</div>
+            <div class="admin-item-price">${formatNaira(item.price)} • <span style="font-size:0.8rem; font-weight:normal;">${item.tiers}</span></div>
+            <div class="admin-item-desc">${item.desc}</div>
+            <button class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; margin-top: auto;" onclick='openEditDesignModal(${designJson})'>
+                ✏️ Edit Picture & Details
+            </button>
+        `;
+        container.appendChild(card);
+    });
+}
+
+window.openEditMenuModal = function (item) {
+    const isNew = !item;
+    const data = item || {
+        id: 'p' + Date.now(),
+        name: '',
+        price: 3000,
+        category: 'pastries',
+        desc: '',
+        img: 'assets/chinchin_jar.png'
+    };
+
+    const modal = document.getElementById('editItemModal');
+    const body = document.getElementById('editItemModalBody');
+
+    body.innerHTML = `
+        <h3 style="font-size: 1.4rem; margin-bottom: 16px;">${isNew ? '✨ Add New Menu Item' : '✏️ Edit Menu Item & Picture'}</h3>
+        
+        <div style="margin-bottom: 16px; text-align: center;">
+            <div style="width: 100%; height: 160px; border-radius: 10px; overflow: hidden; background: var(--bg-secondary); margin-bottom: 10px; border: 1px solid var(--border-color);">
+                <img id="editItemPreview" src="${data.img}" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='assets/hero_bg.png'">
+            </div>
+            
+            <div style="font-size: 0.8rem; font-weight:600; margin-bottom: 6px; color: var(--text-secondary);">Choose Picture:</div>
+            
+            <input type="file" id="editItemFileInput" accept="image/*" style="display:none;" onchange="handleImageFileSelect(this, 'editItemImgInput', 'editItemPreview')">
+            <button type="button" class="btn btn-secondary btn-sm" style="margin-bottom:8px;" onclick="document.getElementById('editItemFileInput').click()">
+                📁 Upload Picture File from Computer
+            </button>
+
+            <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center; margin-bottom:10px;">
+                <span class="img-preset-btn" onclick="selectPresetImg('assets/chinchin_jar.png', 'editItemImgInput', 'editItemPreview')">Chin-Chin Jar</span>
+                <span class="img-preset-btn" onclick="selectPresetImg('assets/deluxe_cupcakes.png', 'editItemImgInput', 'editItemPreview')">Cupcakes</span>
+                <span class="img-preset-btn" onclick="selectPresetImg('assets/pastry_gift_box.png', 'editItemImgInput', 'editItemPreview')">Gift Box</span>
+                <span class="img-preset-btn" onclick="selectPresetImg('assets/nigerian_meatpie.png', 'editItemImgInput', 'editItemPreview')">Meatpie</span>
+                <span class="img-preset-btn" onclick="selectPresetImg('assets/sausage_rolls.png', 'editItemImgInput', 'editItemPreview')">Sausage Roll</span>
+                <span class="img-preset-btn" onclick="selectPresetImg('assets/double_chocolate_cake.png', 'editItemImgInput', 'editItemPreview')">Choc Cake</span>
+                <span class="img-preset-btn" onclick="selectPresetImg('assets/signature_hamper.png', 'editItemImgInput', 'editItemPreview')">Hamper</span>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="editItemImgInput" style="font-size:0.8rem;">Image Path or URL</label>
+                <input type="text" id="editItemImgInput" class="form-input" value="${data.img}" placeholder="e.g. assets/chinchin_jar.png or https://..." oninput="document.getElementById('editItemPreview').src=this.value">
+            </div>
+        </div>
+
+        <form onsubmit="saveMenuItemForm(event, '${data.id}')">
+            <div class="form-group">
+                <label for="editItemName">Item Name</label>
+                <input type="text" id="editItemName" class="form-input" value="${data.name}" placeholder="e.g. Special Chin-Chin Jar" required>
+            </div>
+            <div class="form-grid" style="grid-template-columns:1fr 1fr; margin-bottom:12px;">
+                <div class="form-group" style="margin:0;">
+                    <label for="editItemPrice">Price (₦)</label>
+                    <input type="number" id="editItemPrice" class="form-input" value="${data.price}" required>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label for="editItemCategory">Category</label>
+                    <select id="editItemCategory" class="form-input">
+                        <option value="pastries" ${data.category === 'pastries' ? 'selected' : ''}>Pastries & Bites</option>
+                        <option value="cakes" ${data.category === 'cakes' ? 'selected' : ''}>Cakes</option>
+                        <option value="packages" ${data.category === 'packages' ? 'selected' : ''}>Gift Packages</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="editItemDesc">Description</label>
+                <textarea id="editItemDesc" class="form-input" rows="3" required>${data.desc}</textarea>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:16px;">
+                ${!isNew ? `<button type="button" class="btn btn-secondary" style="color:#e63946; border-color:#e63946;" onclick="deleteMenuItemAction('${data.id}')">🗑️ Delete</button>` : ''}
+                <button type="button" class="btn btn-secondary" style="flex:1; justify-content:center;" onclick="closeEditItemModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" style="flex:2; justify-content:center;">💾 Save Item & Picture</button>
+            </div>
+        </form>
+    `;
+
+    modal.style.display = 'block';
+};
+
+window.openEditDesignModal = function (design) {
+    const isNew = !design;
+    const data = design || {
+        id: 'rmd' + Date.now(),
+        name: '',
+        price: 25000,
+        tiers: '2 Tiers',
+        category: 'multitier',
+        subCategory: 'deluxe',
+        sponge: 'Red Velvet Sponge',
+        frosting: 'Whipped Cream',
+        toppings: 'Fondant Roses',
+        badge: 'Popular',
+        tagClass: 'badge-pink',
+        desc: '',
+        img: 'assets/royal_velvet_rose_cake.png',
+        serves: '20-25 Guests',
+        prepTime: '24 Hours'
+    };
+
+    const modal = document.getElementById('editItemModal');
+    const body = document.getElementById('editItemModalBody');
+
+    body.innerHTML = `
+        <h3 style="font-size: 1.4rem; margin-bottom: 16px;">${isNew ? '✨ Add New Cake Design' : '✏️ Edit Cake Design & Picture'}</h3>
+        
+        <div style="margin-bottom: 16px; text-align: center;">
+            <div style="width: 100%; height: 160px; border-radius: 10px; overflow: hidden; background: var(--bg-secondary); margin-bottom: 10px; border: 1px solid var(--border-color);">
+                <img id="editDesignPreview" src="${data.img}" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='assets/hero_bg.png'">
+            </div>
+
+            <div style="font-size: 0.8rem; font-weight:600; margin-bottom: 6px; color: var(--text-secondary);">Choose Picture:</div>
+
+            <input type="file" id="editDesignFileInput" accept="image/*" style="display:none;" onchange="handleImageFileSelect(this, 'editDesignImgInput', 'editDesignPreview')">
+            <button type="button" class="btn btn-secondary btn-sm" style="margin-bottom:8px;" onclick="document.getElementById('editDesignFileInput').click()">
+                📁 Upload Picture File from Computer
+            </button>
+
+            <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center; margin-bottom:10px;">
+                <span class="img-preset-btn" onclick="selectPresetImg('assets/royal_velvet_rose_cake.png', 'editDesignImgInput', 'editDesignPreview')">Royal Velvet Rose</span>
+                <span class="img-preset-btn" onclick="selectPresetImg('assets/midnight_chocolate_drip.png', 'editDesignImgInput', 'editDesignPreview')">Midnight Choc</span>
+                <span class="img-preset-btn" onclick="selectPresetImg('assets/golden_vanilla_bliss.png', 'editDesignImgInput', 'editDesignPreview')">Golden Vanilla</span>
+                <span class="img-preset-btn" onclick="selectPresetImg('assets/tropical_coconut_crunch.png', 'editDesignImgInput', 'editDesignPreview')">Coconut Crunch</span>
+                <span class="img-preset-btn" onclick="selectPresetImg('assets/grand_strawberry_empress.png', 'editDesignImgInput', 'editDesignPreview')">Strawberry Empress</span>
+                <span class="img-preset-btn" onclick="selectPresetImg('assets/lagos_party_crown.png', 'editDesignImgInput', 'editDesignPreview')">Lagos Party Crown</span>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="editDesignImgInput" style="font-size:0.8rem;">Image Path or URL</label>
+                <input type="text" id="editDesignImgInput" class="form-input" value="${data.img}" placeholder="e.g. assets/royal_velvet_rose_cake.png or https://..." oninput="document.getElementById('editDesignPreview').src=this.value">
+            </div>
+        </div>
+
+        <form onsubmit="saveDesignForm(event, '${data.id}')">
+            <div class="form-group">
+                <label for="editDesignName">Cake Design Name</label>
+                <input type="text" id="editDesignName" class="form-input" value="${data.name}" placeholder="e.g. Royal Rose Empress" required>
+            </div>
+            <div class="form-grid" style="grid-template-columns:1fr 1fr; margin-bottom:12px;">
+                <div class="form-group" style="margin:0;">
+                    <label for="editDesignPrice">Price (₦)</label>
+                    <input type="number" id="editDesignPrice" class="form-input" value="${data.price}" required>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label for="editDesignTiers">Tiers</label>
+                    <select id="editDesignTiers" class="form-input" onchange="document.getElementById('editDesignCategory').value = this.value.includes('1') ? '1tier' : 'multitier'">
+                        <option value="1 Tier" ${data.tiers === '1 Tier' ? 'selected' : ''}>1 Tier</option>
+                        <option value="2 Tiers" ${data.tiers === '2 Tiers' ? 'selected' : ''}>2 Tiers</option>
+                        <option value="3 Tiers" ${data.tiers === '3 Tiers' ? 'selected' : ''}>3 Tiers</option>
+                    </select>
+                </div>
+            </div>
+            <input type="hidden" id="editDesignCategory" value="${data.category}">
+            <div class="form-group">
+                <label for="editDesignDesc">Description</label>
+                <textarea id="editDesignDesc" class="form-input" rows="3" required>${data.desc}</textarea>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:16px;">
+                ${!isNew ? `<button type="button" class="btn btn-secondary" style="color:#e63946; border-color:#e63946;" onclick="deleteDesignAction('${data.id}')">🗑️ Delete</button>` : ''}
+                <button type="button" class="btn btn-secondary" style="flex:1; justify-content:center;" onclick="closeEditItemModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" style="flex:2; justify-content:center;">💾 Save Design & Picture</button>
+            </div>
+        </form>
+    `;
+
+    modal.style.display = 'block';
+};
+
+window.handleImageFileSelect = function (inputEl, targetInputId, previewImgId) {
+    if (inputEl.files && inputEl.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const dataUrl = e.target.result;
+            const targetInput = document.getElementById(targetInputId);
+            const previewImg = document.getElementById(previewImgId);
+            if (targetInput) targetInput.value = dataUrl;
+            if (previewImg) previewImg.src = dataUrl;
+        };
+        reader.readAsDataURL(inputEl.files[0]);
+    }
+};
+
+window.selectPresetImg = function (imgPath, targetInputId, previewImgId) {
+    const targetInput = document.getElementById(targetInputId);
+    const previewImg = document.getElementById(previewImgId);
+    if (targetInput) targetInput.value = imgPath;
+    if (previewImg) previewImg.src = imgPath;
+};
+
+window.saveMenuItemForm = async function (e, id) {
+    e.preventDefault();
+    const name = document.getElementById('editItemName').value.trim();
+    const price = Number(document.getElementById('editItemPrice').value);
+    const category = document.getElementById('editItemCategory').value;
+    const desc = document.getElementById('editItemDesc').value.trim();
+    const img = document.getElementById('editItemImgInput').value.trim() || 'assets/chinchin_jar.png';
+
+    const item = { id, name, price, category, desc, img };
+    await apiSaveMenuItem(item);
+
+    showToast(`Saved picture & details for "${name}"!`);
+    closeEditItemModal();
+    renderCatalog();
+    renderAdminMenuItems();
+};
+
+window.deleteMenuItemAction = async function (id) {
+    if (confirm('Are you sure you want to delete this menu item?')) {
+        await apiDeleteMenuItem(id);
+        showToast('Menu item deleted.');
+        closeEditItemModal();
+        renderCatalog();
+        renderAdminMenuItems();
+    }
+};
+
+window.saveDesignForm = async function (e, id) {
+    e.preventDefault();
+    const name = document.getElementById('editDesignName').value.trim();
+    const price = Number(document.getElementById('editDesignPrice').value);
+    const tiers = document.getElementById('editDesignTiers').value;
+    const category = document.getElementById('editDesignCategory').value || (tiers.includes('1') ? '1tier' : 'multitier');
+    const desc = document.getElementById('editDesignDesc').value.trim();
+    const img = document.getElementById('editDesignImgInput').value.trim() || 'assets/royal_velvet_rose_cake.png';
+
+    const design = {
+        id,
+        name,
+        price,
+        tiers,
+        category,
+        subCategory: 'deluxe',
+        sponge: 'Sponge Cake',
+        frosting: 'Buttercream Frosting',
+        toppings: 'Cake Decor',
+        badge: 'Popular',
+        tagClass: 'badge-pink',
+        desc,
+        img,
+        serves: '15-20 Guests',
+        prepTime: '24 Hours'
+    };
+
+    await apiSaveReadyMadeDesign(design);
+
+    showToast(`Saved picture & details for "${name}"!`);
+    closeEditItemModal();
+    initReadyMadeCakeDesigns();
+    renderAdminCakeDesigns();
+};
+
+window.deleteDesignAction = async function (id) {
+    if (confirm('Are you sure you want to delete this cake design?')) {
+        await apiDeleteReadyMadeDesign(id);
+        showToast('Cake design deleted.');
+        closeEditItemModal();
+        initReadyMadeCakeDesigns();
+        renderAdminCakeDesigns();
     }
 };
 

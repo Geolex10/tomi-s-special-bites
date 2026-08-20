@@ -67,8 +67,8 @@ ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.subscribers ENABLE ROW LEVEL SECURITY;
 
 -- Create Policies for Anonymous & Public Access
-CREATE POLICY "Allow public read access to menu_items" ON public.menu_items FOR SELECT USING (true);
-CREATE POLICY "Allow public read access to ready_made_designs" ON public.ready_made_designs FOR SELECT USING (true);
+CREATE POLICY "Allow public all access to menu_items" ON public.menu_items FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow public all access to ready_made_designs" ON public.ready_made_designs FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow public insert and read access to orders" ON public.orders FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow public insert access to subscribers" ON public.subscribers FOR INSERT WITH CHECK (true);
 

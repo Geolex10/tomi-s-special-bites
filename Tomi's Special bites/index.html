@@ -734,23 +734,63 @@
             </div>
         </div>
 
-        <!-- 5. Admin Order Desk Modal -->
-        <div class="modal-content" id="adminModal" style="display:none; max-width: 800px;">
+        <!-- 5. Admin Control Center Modal -->
+        <div class="modal-content" id="adminModal" style="display:none; max-width: 920px;">
             <button class="icon-btn modal-close-btn" onclick="closeAllModals()">&times;</button>
             <div class="modal-body">
-                <div
-                    style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
                     <div>
-                        <h3 style="font-size: 1.6rem; margin-bottom: 4px; color: var(--text-primary);">Staff Order Desk
-                        </h3>
-                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Manage incoming orders & update live
-                            status tracking.</p>
+                        <h3 style="font-size: 1.6rem; margin-bottom: 4px; color: var(--text-primary);">Staff Control Center</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.88rem;">Manage live customer orders, catalog items, and cake design pictures.</p>
                     </div>
-                    <button class="btn btn-secondary btn-sm" onclick="renderAdminOrderDesk()">Refresh Orders</button>
                 </div>
-                <div class="admin-orders-list" id="adminOrdersList">
-                    <!-- Populated dynamically via app.js -->
+
+                <!-- Admin Tabs -->
+                <div class="admin-tabs" style="display:flex; gap:10px; margin-bottom:20px; border-bottom:1px solid var(--border-color); padding-bottom:12px; flex-wrap:wrap;">
+                    <button class="btn btn-secondary btn-sm admin-tab-btn active" id="tabBtnOrders" onclick="switchAdminTab('orders')">📦 Customer Orders</button>
+                    <button class="btn btn-secondary btn-sm admin-tab-btn" id="tabBtnMenu" onclick="switchAdminTab('menu')">🧁 Menu Items & Pictures</button>
+                    <button class="btn btn-secondary btn-sm admin-tab-btn" id="tabBtnDesigns" onclick="switchAdminTab('designs')">🎂 Cake Designs & Pictures</button>
                 </div>
+
+                <!-- Tab 1: Orders Panel -->
+                <div id="adminPanelOrders" class="admin-tab-panel active">
+                    <div style="display:flex; justify-content:flex-end; margin-bottom:12px;">
+                        <button class="btn btn-secondary btn-sm" onclick="renderAdminOrderDesk()">Refresh Orders</button>
+                    </div>
+                    <div class="admin-orders-list" id="adminOrdersList">
+                        <!-- Populated dynamically via app.js -->
+                    </div>
+                </div>
+
+                <!-- Tab 2: Menu Items & Pictures Panel -->
+                <div id="adminPanelMenu" class="admin-tab-panel" style="display:none;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                        <h4 style="margin:0; font-size:1.1rem;">Bites & Pastry Catalog</h4>
+                        <button class="btn btn-primary btn-sm" onclick="openEditMenuModal(null)">+ Add New Item</button>
+                    </div>
+                    <div class="admin-items-grid" id="adminMenuItemsList">
+                        <!-- Populated dynamically via app.js -->
+                    </div>
+                </div>
+
+                <!-- Tab 3: Cake Designs & Pictures Panel -->
+                <div id="adminPanelDesigns" class="admin-tab-panel" style="display:none;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                        <h4 style="margin:0; font-size:1.1rem;">Ready-Made Celebration Cake Catalog</h4>
+                        <button class="btn btn-primary btn-sm" onclick="openEditDesignModal(null)">+ Add New Cake Design</button>
+                    </div>
+                    <div class="admin-items-grid" id="adminDesignsItemsList">
+                        <!-- Populated dynamically via app.js -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Item / Design Picture & Details Editor Modal -->
+        <div class="modal-content" id="editItemModal" style="display:none; max-width: 560px; z-index: 10002;">
+            <button class="icon-btn modal-close-btn" onclick="closeEditItemModal()">&times;</button>
+            <div class="modal-body" id="editItemModalBody">
+                <!-- Populated dynamically via app.js -->
             </div>
         </div>
 

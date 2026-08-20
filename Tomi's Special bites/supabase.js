@@ -56,7 +56,63 @@ async function apiGetMenuItems() {
             console.warn('[Supabase] Error fetching menu_items:', err);
         }
     }
-    return null; // Return null to trigger fallback array in app.js
+    const local = localStorage.getItem('tb_menu_items');
+    if (local) return JSON.parse(local);
+    return null; // Return null to trigger default fallback array in app.js
+}
+
+/**
+ * Save / Update Menu Item (including Picture URL/file)
+ */
+async function apiSaveMenuItem(item) {
+    if (isSupabaseConnected && supabaseClient) {
+        try {
+            const row = {
+                id: item.id,
+                name: item.name,
+                price: Number(item.price),
+                category: item.category,
+                desc_text: item.desc,
+                img: item.img
+            };
+            const { error } = await supabaseClient.from('menu_items').upsert(row);
+            if (error) throw error;
+            console.log('[Supabase] Saved menu item:', item.id);
+        } catch (err) {
+            console.warn('[Supabase] Error saving menu item:', err);
+        }
+    }
+    // Update local storage fallback
+    const local = localStorage.getItem('tb_menu_items');
+    let list = local ? JSON.parse(local) : (window.CURRENT_MENU_ITEMS || []);
+    const idx = list.findIndex(i => i.id === item.id);
+    if (idx >= 0) {
+        list[idx] = item;
+    } else {
+        list.push(item);
+    }
+    localStorage.setItem('tb_menu_items', JSON.stringify(list));
+    return true;
+}
+
+/**
+ * Delete Menu Item
+ */
+async function apiDeleteMenuItem(id) {
+    if (isSupabaseConnected && supabaseClient) {
+        try {
+            const { error } = await supabaseClient.from('menu_items').delete().eq('id', id);
+            if (error) throw error;
+            console.log('[Supabase] Deleted menu item:', id);
+        } catch (err) {
+            console.warn('[Supabase] Error deleting menu item:', err);
+        }
+    }
+    const local = localStorage.getItem('tb_menu_items');
+    let list = local ? JSON.parse(local) : (window.CURRENT_MENU_ITEMS || []);
+    list = list.filter(i => i.id !== id);
+    localStorage.setItem('tb_menu_items', JSON.stringify(list));
+    return true;
 }
 
 /**
@@ -89,7 +145,71 @@ async function apiGetReadyMadeDesigns() {
             console.warn('[Supabase] Error fetching ready_made_designs:', err);
         }
     }
+    const local = localStorage.getItem('tb_ready_designs');
+    if (local) return JSON.parse(local);
     return null;
+}
+
+/**
+ * Save / Update Ready-Made Cake Design (including Picture URL/file)
+ */
+async function apiSaveReadyMadeDesign(design) {
+    if (isSupabaseConnected && supabaseClient) {
+        try {
+            const row = {
+                id: design.id,
+                name: design.name,
+                price: Number(design.price),
+                tiers: design.tiers || '1 Tier',
+                category: design.category || '1tier',
+                sub_category: design.subCategory || 'deluxe',
+                sponge: design.sponge || 'Vanilla',
+                frosting: design.frosting || 'Buttercream',
+                toppings: design.toppings || 'Decorations',
+                badge: design.badge || 'Popular',
+                tag_class: design.tagClass || 'badge-pink',
+                desc_text: design.desc,
+                img: design.img,
+                serves: design.serves || '12-15 Guests',
+                prep_time: design.prepTime || '24 Hours'
+            };
+            const { error } = await supabaseClient.from('ready_made_designs').upsert(row);
+            if (error) throw error;
+            console.log('[Supabase] Saved ready_made_design:', design.id);
+        } catch (err) {
+            console.warn('[Supabase] Error saving ready_made_design:', err);
+        }
+    }
+    const local = localStorage.getItem('tb_ready_designs');
+    let list = local ? JSON.parse(local) : (window.CURRENT_READY_DESIGNS || []);
+    const idx = list.findIndex(i => i.id === design.id);
+    if (idx >= 0) {
+        list[idx] = design;
+    } else {
+        list.push(design);
+    }
+    localStorage.setItem('tb_ready_designs', JSON.stringify(list));
+    return true;
+}
+
+/**
+ * Delete Ready-Made Cake Design
+ */
+async function apiDeleteReadyMadeDesign(id) {
+    if (isSupabaseConnected && supabaseClient) {
+        try {
+            const { error } = await supabaseClient.from('ready_made_designs').delete().eq('id', id);
+            if (error) throw error;
+            console.log('[Supabase] Deleted ready_made_design:', id);
+        } catch (err) {
+            console.warn('[Supabase] Error deleting ready_made_design:', err);
+        }
+    }
+    const local = localStorage.getItem('tb_ready_designs');
+    let list = local ? JSON.parse(local) : (window.CURRENT_READY_DESIGNS || []);
+    list = list.filter(i => i.id !== id);
+    localStorage.setItem('tb_ready_designs', JSON.stringify(list));
+    return true;
 }
 
 /**
