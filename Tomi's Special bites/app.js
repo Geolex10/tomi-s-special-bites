@@ -683,14 +683,11 @@ async function initAdminToggle() {
             }
             closeAllModals();
 
-            // Populate Staff User Dropdown with Gmail Identities
+            // Populate Staff User Dropdown immediately from cache
             const selectEl = document.getElementById('staffUserSelect');
             if (selectEl) {
-                const users = await apiGetAdminUsers();
-                const list = (users && users.length > 0) ? users : [
-                    { email: 'tomi@gmail.com', passwordCode: '1234', fullName: 'Tomi (Main Admin)', role: 'Super Admin' }
-                ];
-                selectEl.innerHTML = list.map(u => `<option value="${u.email}">${u.fullName} (${u.email})</option>`).join('');
+                const cachedUsers = getCachedAdmins();
+                selectEl.innerHTML = cachedUsers.map(u => `<option value="${u.email}">${u.fullName} (${u.email})</option>`).join('');
             }
 
             const pinInputEl = document.getElementById('pinKeyboardInput');
@@ -704,6 +701,15 @@ async function initAdminToggle() {
 
             document.getElementById('modalOverlay').classList.add('open');
             document.getElementById('adminPinModal').style.display = 'block';
+
+            // Background async refresh from Supabase
+            apiGetAdminUsers().then(users => {
+                if (selectEl && users && users.length > 0) {
+                    const currentVal = selectEl.value;
+                    selectEl.innerHTML = users.map(u => `<option value="${u.email}">${u.fullName} (${u.email})</option>`).join('');
+                    if (currentVal) selectEl.value = currentVal;
+                }
+            }).catch(() => {});
         });
     }
 
@@ -719,61 +725,47 @@ async function initAdminToggle() {
     }
 }
 
-window.pinConfirm = async function () {
-    const selectedEmail = document.getElementById('staffUserSelect')?.value || 'tomi@gmail.com';
-    const enteredPass = document.getElementById('pinKeyboardInput')?.value.trim() || '';
+window.pinConfirm = function () {
+    const selectEl = document.getElementById('staffUserSelect');
+    const inputEl = document.getElementById('pinKeyboardInput');
     const errEl = document.getElementById('pinErrorMsg');
-    const loginBtn = document.getElementById('staffLoginBtn');
+
+    const selectedEmail = (selectEl && selectEl.value) ? selectEl.value.trim().toLowerCase() : 'tomi@gmail.com';
+    const enteredPass = inputEl ? inputEl.value.trim() : '';
 
     if (!enteredPass) {
         if (errEl) errEl.textContent = 'Please enter your password or PIN code.';
+        if (inputEl) inputEl.focus();
         return;
     }
 
-    if (loginBtn) {
-        loginBtn.disabled = true;
-        loginBtn.textContent = 'Authenticating...';
-    }
+    const users = getCachedAdmins();
+    const matchedUser = users.find(u => u.email && u.email.toLowerCase() === selectedEmail);
 
-    try {
-        const users = await apiGetAdminUsers();
-        const matchedUser = (users && users.length > 0) 
-            ? users.find(u => u.email && u.email.toLowerCase() === selectedEmail.toLowerCase())
-            : null;
+    // Strict Password Validation
+    const isCorrect = matchedUser 
+        ? (matchedUser.passwordCode === enteredPass) 
+        : (enteredPass === '1234');
 
-        // Strict Password Validation: Once password is changed, old default 1234 no longer works unless set to 1234
-        const isCorrect = matchedUser 
-            ? (matchedUser.passwordCode === enteredPass) 
-            : (enteredPass === '1234');
+    if (isCorrect) {
+        pinState.attempts = 0;
+        const loggedUser = matchedUser || { email: selectedEmail, fullName: 'Tomi (Main Admin)', role: 'Super Admin' };
+        window.CURRENT_ADMIN_USER = loggedUser;
 
-        if (isCorrect) {
-            pinState.attempts = 0;
-            const loggedUser = matchedUser || { email: selectedEmail, fullName: 'Tomi (Main Admin)', role: 'Super Admin' };
-            window.CURRENT_ADMIN_USER = loggedUser;
+        document.getElementById('adminPinModal').style.display = 'none';
+        document.getElementById('adminModal').style.display = 'block';
+        showToast(`Welcome back, ${loggedUser.fullName}! 👋`);
+        renderAdminOrderDesk();
 
-            document.getElementById('adminPinModal').style.display = 'none';
-            document.getElementById('adminModal').style.display = 'block';
-            showToast(`Welcome back, ${loggedUser.fullName}! 👋`);
-            renderAdminOrderDesk();
-
-            // Asynchronously log activity
-            apiLogAdminActivity(loggedUser.fullName, 'Staff Login', `Logged in using ${loggedUser.email}`).catch(() => {});
+        // Background log activity
+        apiLogAdminActivity(loggedUser.fullName, 'Staff Login', `Logged in using ${loggedUser.email}`).catch(() => {});
+    } else {
+        pinState.attempts++;
+        if (pinState.attempts >= 4) {
+            pinState.lockedUntil = Date.now() + 120000;
+            if (errEl) errEl.textContent = 'Too many failed login attempts. Locked for 2 minutes.';
         } else {
-            pinState.attempts++;
-            if (pinState.attempts >= 4) {
-                pinState.lockedUntil = Date.now() + 120000;
-                if (errEl) errEl.textContent = 'Too many failed login attempts. Locked for 2 minutes.';
-            } else {
-                if (errEl) errEl.textContent = `Incorrect password/PIN for ${selectedEmail}. ${4 - pinState.attempts} attempt(s) remaining.`;
-            }
-        }
-    } catch (err) {
-        console.error('[Admin Login] Exception during authentication:', err);
-        if (errEl) errEl.textContent = 'Authentication error. Please check your password.';
-    } finally {
-        if (loginBtn) {
-            loginBtn.disabled = false;
-            loginBtn.textContent = '🔓 Login';
+            if (errEl) errEl.textContent = `Incorrect password/PIN for ${selectedEmail}. ${4 - pinState.attempts} attempt(s) remaining.`;
         }
     }
 };

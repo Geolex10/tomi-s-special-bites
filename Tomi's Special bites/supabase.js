@@ -464,19 +464,31 @@ async function apiSubscribeNewsletter(email) {
 // 3. ADMIN USERS & AUDIT LOGGING SERVICE
 // ----------------------------------------------------
 
+window.ADMIN_USERS_CACHE = [
+    { id: '1', email: 'tomi@gmail.com', passwordCode: '1234', fullName: 'Tomi (Main Admin)', role: 'Super Admin', createdAt: new Date().toISOString() }
+];
+
+function getCachedAdmins() {
+    const local = localStorage.getItem('tb_admin_users');
+    if (local) {
+        try {
+            const parsed = JSON.parse(local);
+            if (parsed && Array.isArray(parsed) && parsed.length > 0) return parsed;
+        } catch (e) {}
+    }
+    return window.ADMIN_USERS_CACHE;
+}
+
 /**
  * Fetch Staff Accounts (Gmail identities)
  */
 async function apiGetAdminUsers() {
-    const defaultAdmins = [
-        { id: '1', email: 'tomi@gmail.com', passwordCode: '1234', fullName: 'Tomi (Main Admin)', role: 'Super Admin', createdAt: new Date().toISOString() }
-    ];
-
+    const cached = getCachedAdmins();
     if (isSupabaseConnected && supabaseClient) {
         try {
             const { data, error } = await supabaseClient.from('admin_users').select('*').order('created_at');
             if (!error && data && data.length > 0) {
-                return data.map(u => ({
+                const mapped = data.map(u => ({
                     id: u.id,
                     email: u.email || u.username || 'tomi@gmail.com',
                     passwordCode: u.password_code || u.pin_code || '1234',
@@ -484,19 +496,15 @@ async function apiGetAdminUsers() {
                     role: u.role || 'Super Admin',
                     createdAt: u.created_at
                 }));
+                window.ADMIN_USERS_CACHE = mapped;
+                localStorage.setItem('tb_admin_users', JSON.stringify(mapped));
+                return mapped;
             }
         } catch (err) {
             console.warn('[Supabase] Error fetching admin_users:', err);
         }
     }
-    const local = localStorage.getItem('tb_admin_users');
-    if (local) {
-        try {
-            const parsed = JSON.parse(local);
-            if (parsed && parsed.length > 0) return parsed;
-        } catch (e) {}
-    }
-    return defaultAdmins;
+    return cached;
 }
 
 /**
