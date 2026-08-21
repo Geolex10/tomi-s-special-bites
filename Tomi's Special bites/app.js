@@ -723,32 +723,57 @@ window.pinConfirm = async function () {
     const selectedEmail = document.getElementById('staffUserSelect')?.value || 'tomi@gmail.com';
     const enteredPass = document.getElementById('pinKeyboardInput')?.value.trim() || '';
     const errEl = document.getElementById('pinErrorMsg');
+    const loginBtn = document.getElementById('staffLoginBtn');
 
-    const users = await apiGetAdminUsers();
-    const matchedUser = users.find(u => u.email.toLowerCase() === selectedEmail.toLowerCase());
+    if (!enteredPass) {
+        if (errEl) errEl.textContent = 'Please enter your password or PIN code.';
+        return;
+    }
 
-    const isMasterBackup = enteredPass === '1234';
-    const isCorrect = matchedUser ? (matchedUser.passwordCode === enteredPass || isMasterBackup) : isMasterBackup;
+    if (loginBtn) {
+        loginBtn.disabled = true;
+        loginBtn.textContent = 'Authenticating...';
+    }
 
-    if (isCorrect && enteredPass !== '') {
-        pinState.attempts = 0;
-        const loggedUser = matchedUser || { email: selectedEmail, fullName: 'Tomi (Main Admin)', role: 'Super Admin' };
-        window.CURRENT_ADMIN_USER = loggedUser;
+    try {
+        const users = await apiGetAdminUsers();
+        const matchedUser = (users && users.length > 0) 
+            ? users.find(u => u.email && u.email.toLowerCase() === selectedEmail.toLowerCase())
+            : null;
 
-        // Log Activity to Audit Trail
-        await apiLogAdminActivity(loggedUser.fullName, 'Staff Login', `Logged into Staff Control Center using ${loggedUser.email}`);
+        // Strict Password Validation: Once password is changed, old default 1234 no longer works unless set to 1234
+        const isCorrect = matchedUser 
+            ? (matchedUser.passwordCode === enteredPass) 
+            : (enteredPass === '1234');
 
-        document.getElementById('adminPinModal').style.display = 'none';
-        document.getElementById('adminModal').style.display = 'block';
-        showToast(`Welcome back, ${loggedUser.fullName}! 👋`);
-        renderAdminOrderDesk();
-    } else {
-        pinState.attempts++;
-        if (pinState.attempts >= 4) {
-            pinState.lockedUntil = Date.now() + 120000;
-            if (errEl) errEl.textContent = 'Too many failed login attempts. Locked for 2 minutes.';
+        if (isCorrect) {
+            pinState.attempts = 0;
+            const loggedUser = matchedUser || { email: selectedEmail, fullName: 'Tomi (Main Admin)', role: 'Super Admin' };
+            window.CURRENT_ADMIN_USER = loggedUser;
+
+            document.getElementById('adminPinModal').style.display = 'none';
+            document.getElementById('adminModal').style.display = 'block';
+            showToast(`Welcome back, ${loggedUser.fullName}! 👋`);
+            renderAdminOrderDesk();
+
+            // Asynchronously log activity
+            apiLogAdminActivity(loggedUser.fullName, 'Staff Login', `Logged in using ${loggedUser.email}`).catch(() => {});
         } else {
-            if (errEl) errEl.textContent = `Incorrect password/PIN. ${4 - pinState.attempts} attempt(s) remaining.`;
+            pinState.attempts++;
+            if (pinState.attempts >= 4) {
+                pinState.lockedUntil = Date.now() + 120000;
+                if (errEl) errEl.textContent = 'Too many failed login attempts. Locked for 2 minutes.';
+            } else {
+                if (errEl) errEl.textContent = `Incorrect password/PIN for ${selectedEmail}. ${4 - pinState.attempts} attempt(s) remaining.`;
+            }
+        }
+    } catch (err) {
+        console.error('[Admin Login] Exception during authentication:', err);
+        if (errEl) errEl.textContent = 'Authentication error. Please check your password.';
+    } finally {
+        if (loginBtn) {
+            loginBtn.disabled = false;
+            loginBtn.textContent = '🔓 Login';
         }
     }
 };
