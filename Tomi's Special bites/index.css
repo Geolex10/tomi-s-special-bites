@@ -82,12 +82,64 @@ a {
 button, input, textarea, select {
     font-family: inherit;
     outline: none;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
 }
 
-button {
+button, .btn, .icon-btn, .modal-close-btn, .admin-tab-btn, .tab-btn {
     cursor: pointer;
     border: none;
     background: none;
+    user-select: none;
+    touch-action: manipulation;
+    transition: transform 0.1s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+button:active, .btn:active, .icon-btn:active, .modal-close-btn:active, .admin-tab-btn:active, .tab-btn:active {
+    transform: scale(0.96) translateY(1px) !important;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    text-align: center;
+}
+
+.btn-primary {
+    background-color: var(--accent-secondary);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(230, 57, 70, 0.25);
+}
+
+.btn-primary:hover {
+    background-color: #d62839;
+    box-shadow: 0 6px 18px rgba(230, 57, 70, 0.35);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--border-color);
+    transform: translateY(-2px);
+}
+
+.btn-sm {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    border-radius: 8px;
 }
 
 img {

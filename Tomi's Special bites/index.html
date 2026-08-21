@@ -7,7 +7,7 @@
     <title>Tomi's Special Bites | Premium Nigerian Cakes, Cupcakes & Chin-Chin</title>
     <meta name="description"
         content="Indulge in premium crunchy chin-chin, custom cakes, cupcakes, and luxury gift packages by Tomi's Special Bites. Order online for delivery.">
-    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="index.css?v=3.0">
 </head>
 
 <body data-theme="light">
@@ -766,7 +766,7 @@
                             Staff Identity:</label>
                         <select id="staffUserSelect" class="form-input"
                             style="width: 100%; padding: 11px 14px; border-radius: 10px; font-weight: 600; font-size: 0.92rem; background: var(--bg-secondary); border: 1.5px solid var(--border-color);">
-                            <option value="tomi@gmail.com">Tomi (Main Admin) — tomi@gmail.com</option>
+                            <option value="preciouskanyinsola1@gmail.com">Precious Kanyinsola (Main Admin) — preciouskanyinsola1@gmail.com</option>
                         </select>
                     </div>
 
@@ -966,7 +966,7 @@
             const inputEl = document.getElementById('pinKeyboardInput');
             const errEl = document.getElementById('pinErrorMsg');
 
-            const selectedEmail = (selectEl && selectEl.value) ? selectEl.value.trim().toLowerCase() : 'tomi@gmail.com';
+            const selectedEmail = (selectEl && selectEl.value) ? selectEl.value.trim().toLowerCase() : 'preciouskanyinsola1@gmail.com';
             const enteredPass = inputEl ? inputEl.value.trim() : '';
 
             if (!enteredPass) {
@@ -987,14 +987,14 @@
                 } catch (err) { }
             }
             if (!users || users.length === 0) {
-                users = [{ id: '1', email: 'tomi@gmail.com', passwordCode: '1234', fullName: 'Tomi (Main Admin)', role: 'Super Admin' }];
+                users = [{ id: '1', email: 'preciouskanyinsola1@gmail.com', passwordCode: '1234', fullName: 'Precious Kanyinsola (Main Admin)', role: 'Super Admin' }];
             }
 
             const matchedUser = users.find(u => u.email && u.email.toLowerCase() === selectedEmail);
             const isCorrect = matchedUser ? (matchedUser.passwordCode === enteredPass) : (enteredPass === '1234');
 
             if (isCorrect) {
-                window.CURRENT_ADMIN_USER = matchedUser || { email: selectedEmail, fullName: 'Tomi (Main Admin)', role: 'Super Admin' };
+                window.CURRENT_ADMIN_USER = matchedUser || { email: selectedEmail, fullName: 'Precious Kanyinsola (Main Admin)', role: 'Super Admin' };
                 const pinModal = document.getElementById('adminPinModal');
                 const adminModal = document.getElementById('adminModal');
                 if (pinModal) pinModal.style.display = 'none';
@@ -1010,8 +1010,8 @@
         window.pinConfirm = window.handleStaffLoginSubmit;
     </script>
 
-    <script src="supabase.js?v=2.5"></script>
-    <script src="app.js?v=2.5"></script>
+    <script src="supabase.js?v=3.0"></script>
+    <script src="app.js?v=3.0"></script>
 </body>
 
 </html>

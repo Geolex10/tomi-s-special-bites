@@ -669,7 +669,7 @@ window.closeEditItemModal = function () {
 // 9. ADMIN CONTROL CENTER — MULTI-STAFF & AUDIT LOGS
 // ----------------------------------------------------
 const pinState = { attempts: 0, lockedUntil: 0 };
-window.CURRENT_ADMIN_USER = { email: 'tomi@gmail.com', fullName: 'Tomi (Main Admin)', role: 'Super Admin' };
+window.CURRENT_ADMIN_USER = { email: 'preciouskanyinsola1@gmail.com', fullName: 'Precious Kanyinsola (Main Admin)', role: 'Super Admin' };
 
 async function initAdminToggle() {
     const adminBtn = document.getElementById('adminToggle');
@@ -735,7 +735,7 @@ window.handleStaffLoginSubmit = function (e) {
     const inputEl = document.getElementById('pinKeyboardInput');
     const errEl = document.getElementById('pinErrorMsg');
 
-    const selectedEmail = (selectEl && selectEl.value) ? selectEl.value.trim().toLowerCase() : 'tomi@gmail.com';
+    const selectedEmail = (selectEl && selectEl.value) ? selectEl.value.trim().toLowerCase() : 'preciouskanyinsola1@gmail.com';
     const enteredPass = inputEl ? inputEl.value.trim() : '';
 
     if (!enteredPass) {
@@ -746,7 +746,7 @@ window.handleStaffLoginSubmit = function (e) {
 
     let users = getCachedAdmins();
     if (!users || users.length === 0) {
-        users = [{ id: '1', email: 'tomi@gmail.com', passwordCode: '1234', fullName: 'Tomi (Main Admin)', role: 'Super Admin' }];
+        users = [{ id: '1', email: 'preciouskanyinsola1@gmail.com', passwordCode: '1234', fullName: 'Precious Kanyinsola (Main Admin)', role: 'Super Admin' }];
     }
 
     const matchedUser = users.find(u => u.email && u.email.toLowerCase() === selectedEmail);
@@ -1228,7 +1228,7 @@ async function renderAdminStaffAccounts() {
     users.forEach(u => {
         const card = document.createElement('div');
         card.className = 'admin-item-card';
-        const isMainAdmin = u.email.toLowerCase().includes('tomi');
+        const isMainAdmin = u.email.toLowerCase().includes('precious') || u.email.toLowerCase().includes('tomi');
         card.innerHTML = `
             <div style="padding:16px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">

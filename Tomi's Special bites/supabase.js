@@ -465,7 +465,7 @@ async function apiSubscribeNewsletter(email) {
 // ----------------------------------------------------
 
 window.ADMIN_USERS_CACHE = [
-    { id: '1', email: 'tomi@gmail.com', passwordCode: '1234', fullName: 'Tomi (Main Admin)', role: 'Super Admin', createdAt: new Date().toISOString() }
+    { id: '1', email: 'preciouskanyinsola1@gmail.com', passwordCode: '1234', fullName: 'Precious Kanyinsola (Main Admin)', role: 'Super Admin', createdAt: new Date().toISOString() }
 ];
 
 function getCachedAdmins() {
@@ -490,9 +490,9 @@ async function apiGetAdminUsers() {
             if (!error && data && data.length > 0) {
                 const mapped = data.map(u => ({
                     id: u.id,
-                    email: u.email || u.username || 'tomi@gmail.com',
+                    email: u.email || u.username || 'preciouskanyinsola1@gmail.com',
                     passwordCode: u.password_code || u.pin_code || '1234',
-                    fullName: u.full_name || 'Tomi (Main Admin)',
+                    fullName: u.full_name || 'Precious Kanyinsola (Main Admin)',
                     role: u.role || 'Super Admin',
                     createdAt: u.created_at
                 }));

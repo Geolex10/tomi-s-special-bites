@@ -107,9 +107,9 @@ CREATE TABLE IF NOT EXISTS public.admin_users (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Insert Default Main Admin Account (Gmail: tomi@gmail.com, Password: 1234)
+-- Insert Default Main Admin Account (Gmail: preciouskanyinsola1@gmail.com, Password: 1234)
 INSERT INTO public.admin_users (email, password_code, full_name, role) VALUES
-('tomi@gmail.com', '1234', 'Tomi (Main Admin)', 'Super Admin')
+('preciouskanyinsola1@gmail.com', '1234', 'Precious Kanyinsola (Main Admin)', 'Super Admin')
 ON CONFLICT (email) DO NOTHING;
 
 -- 6. Create Staff Activity & Audit Logs Table
