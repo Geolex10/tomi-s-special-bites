@@ -1046,17 +1046,28 @@ window.openEditDesignModal = function (design) {
     modal.style.display = 'block';
 };
 
-window.handleImageFileSelect = function (inputEl, targetInputId, previewImgId) {
+window.handleImageFileSelect = async function (inputEl, targetInputId, previewImgId) {
     if (inputEl.files && inputEl.files[0]) {
+        const file = inputEl.files[0];
+        const targetInput = document.getElementById(targetInputId);
+        const previewImg = document.getElementById(previewImgId);
+
+        // Immediate local preview
         const reader = new FileReader();
         reader.onload = function (e) {
-            const dataUrl = e.target.result;
-            const targetInput = document.getElementById(targetInputId);
-            const previewImg = document.getElementById(previewImgId);
-            if (targetInput) targetInput.value = dataUrl;
-            if (previewImg) previewImg.src = dataUrl;
+            if (previewImg) previewImg.src = e.target.result;
+            if (targetInput) targetInput.value = e.target.result;
         };
-        reader.readAsDataURL(inputEl.files[0]);
+        reader.readAsDataURL(file);
+
+        // Upload directly to Supabase Storage Bucket
+        showToast('Uploading picture to Supabase Storage...');
+        const publicUrl = await apiUploadImageToSupabase(file);
+        if (publicUrl) {
+            if (targetInput) targetInput.value = publicUrl;
+            if (previewImg) previewImg.src = publicUrl;
+            showToast('Picture uploaded to Supabase Storage! ✅');
+        }
     }
 };
 

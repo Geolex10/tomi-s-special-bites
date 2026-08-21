@@ -213,6 +213,40 @@ async function apiDeleteReadyMadeDesign(id) {
 }
 
 /**
+ * Upload Image File directly to Supabase Storage Bucket ('product-images')
+ */
+async function apiUploadImageToSupabase(file) {
+    if (isSupabaseConnected && supabaseClient) {
+        try {
+            const ext = file.name.split('.').pop() || 'png';
+            const cleanName = file.name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+            const fileName = `img_${Date.now()}_${cleanName}.${ext}`;
+            
+            const { data, error } = await supabaseClient.storage
+                .from('product-images')
+                .upload(fileName, file, { cacheControl: '3600', upsert: true });
+
+            if (error) {
+                console.warn('[Supabase Storage] Upload notice:', error.message);
+                return null;
+            }
+
+            const { data: publicUrlData } = supabaseClient.storage
+                .from('product-images')
+                .getPublicUrl(fileName);
+
+            if (publicUrlData && publicUrlData.publicUrl) {
+                console.log('[Supabase Storage] Upload success! Public URL:', publicUrlData.publicUrl);
+                return publicUrlData.publicUrl;
+            }
+        } catch (err) {
+            console.warn('[Supabase Storage] Error uploading image file:', err);
+        }
+    }
+    return null;
+}
+
+/**
  * Submit New Customer Order
  */
 async function apiSubmitOrder(orderPayload) {
