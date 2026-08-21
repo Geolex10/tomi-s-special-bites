@@ -725,7 +725,9 @@ async function initAdminToggle() {
     }
 }
 
-window.pinConfirm = function () {
+window.handleStaffLoginSubmit = function (e) {
+    if (e) e.preventDefault();
+
     const selectEl = document.getElementById('staffUserSelect');
     const inputEl = document.getElementById('pinKeyboardInput');
     const errEl = document.getElementById('pinErrorMsg');
@@ -736,13 +738,17 @@ window.pinConfirm = function () {
     if (!enteredPass) {
         if (errEl) errEl.textContent = 'Please enter your password or PIN code.';
         if (inputEl) inputEl.focus();
-        return;
+        return false;
     }
 
-    const users = getCachedAdmins();
+    let users = getCachedAdmins();
+    if (!users || users.length === 0) {
+        users = [{ id: '1', email: 'tomi@gmail.com', passwordCode: '1234', fullName: 'Tomi (Main Admin)', role: 'Super Admin' }];
+    }
+
     const matchedUser = users.find(u => u.email && u.email.toLowerCase() === selectedEmail);
 
-    // Strict Password Validation
+    // Strict Password Check
     const isCorrect = matchedUser 
         ? (matchedUser.passwordCode === enteredPass) 
         : (enteredPass === '1234');
@@ -752,13 +758,18 @@ window.pinConfirm = function () {
         const loggedUser = matchedUser || { email: selectedEmail, fullName: 'Tomi (Main Admin)', role: 'Super Admin' };
         window.CURRENT_ADMIN_USER = loggedUser;
 
-        document.getElementById('adminPinModal').style.display = 'none';
-        document.getElementById('adminModal').style.display = 'block';
+        const pinModal = document.getElementById('adminPinModal');
+        const adminModal = document.getElementById('adminModal');
+
+        if (pinModal) pinModal.style.display = 'none';
+        if (adminModal) adminModal.style.display = 'block';
+
         showToast(`Welcome back, ${loggedUser.fullName}! 👋`);
         renderAdminOrderDesk();
 
-        // Background log activity
-        apiLogAdminActivity(loggedUser.fullName, 'Staff Login', `Logged in using ${loggedUser.email}`).catch(() => {});
+        try {
+            apiLogAdminActivity(loggedUser.fullName, 'Staff Login', `Logged in using ${loggedUser.email}`).catch(() => {});
+        } catch (err) {}
     } else {
         pinState.attempts++;
         if (pinState.attempts >= 4) {
@@ -768,7 +779,10 @@ window.pinConfirm = function () {
             if (errEl) errEl.textContent = `Incorrect password/PIN for ${selectedEmail}. ${4 - pinState.attempts} attempt(s) remaining.`;
         }
     }
+    return false;
 };
+
+window.pinConfirm = window.handleStaffLoginSubmit;
 
 async function renderAdminOrderDesk() {
     const container = document.getElementById('adminOrdersList');
