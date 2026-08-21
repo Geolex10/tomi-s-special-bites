@@ -54,14 +54,9 @@
                         <polyline points="12 6 12 12 16 14" />
                     </svg>
                 </button>
-                <!-- Admin Order Desk Button -->
-                <button class="icon-btn" id="adminToggle" title="Admin Order Desk" aria-label="Admin Order Desk">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2a10 10 0 1 0 10 10H12V2z" />
-                        <path d="M12 12L2.5 7.5" />
-                        <path d="M12 12v10" />
-                    </svg>
+                <!-- Admin Control Center Button -->
+                <button class="btn btn-secondary btn-sm" id="adminToggle" style="gap:5px; font-size:0.8rem; font-weight:700; padding:6px 12px; border-radius:20px; background:var(--accent-primary); color:#ffffff; border:none; cursor:pointer;" title="Staff Admin Control Center">
+                    🔒 Staff Desk
                 </button>
                 <!-- Shopping Cart Trigger -->
                 <button class="icon-btn" id="cartToggle" title="Open Shopping Basket" aria-label="Shopping Basket">
@@ -536,8 +531,7 @@
                 <ul>
                     <li><a href="#contact">Oye-Ekiti Kitchen</a></li>
                     <li><a href="#contact">Delivery Zone</a></li>
-                    <li><a href="#">Hamper Inquiries</a></li>
-                    <li><a href="#">FAQ / Storage Tips</a></li>
+                    <li><a href="javascript:void(0)" onclick="document.getElementById('adminToggle').click()" style="color:var(--accent-primary); font-weight:700;">🔒 Staff Control Center (Admin)</a></li>
                 </ul>
             </div>
             <div class="footer-col footer-newsletter">
