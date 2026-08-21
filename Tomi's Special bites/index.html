@@ -733,36 +733,40 @@
         </div>
 
         <!-- 4b. Staff PIN Authentication Gate Modal -->
-        <div class="modal-content" id="adminPinModal" style="display:none; max-width: 440px; text-align: center;">
+        <div class="modal-content" id="adminPinModal" style="display:none; max-width: 420px; border-radius: 20px; overflow: hidden; box-shadow: var(--shadow-xl); border: 1px solid var(--border-color);">
             <button class="icon-btn modal-close-btn" onclick="closeAllModals()">&times;</button>
-            <div class="modal-body">
-                <form id="staffLoginForm" onsubmit="return handleStaffLoginSubmit(event);">
-                    <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--bg-secondary); color: var(--accent-primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                        </svg>
+            <div class="modal-body" style="padding: 32px 28px;">
+                <form id="staffLoginForm" action="javascript:void(0)" onsubmit="handleStaffLoginSubmit(event); return false;">
+                    <div style="text-align: center; margin-bottom: 24px;">
+                        <div style="width: 54px; height: 54px; border-radius: 16px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color: #ffffff; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px auto; box-shadow: 0 8px 16px rgba(212, 163, 115, 0.3);">
+                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                        </div>
+                        <h3 style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">Staff Control Center</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem;">Sign in with your staff account credentials</p>
                     </div>
-                    <h3 style="font-size: 1.4rem; margin-bottom: 6px;">Staff Control Center</h3>
-                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">Select staff Gmail account and enter password / PIN</p>
-                    
+
                     <!-- Staff Gmail Selector -->
-                    <div style="margin-bottom: 16px; text-align: left;">
-                        <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px; display: block;">Select Staff Gmail Identity:</label>
-                        <select id="staffUserSelect" class="form-input" style="width: 100%; padding: 10px 12px; font-weight: 600;">
+                    <div style="margin-bottom: 18px; text-align: left;">
+                        <label style="font-size: 0.82rem; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; display: block;">Select Staff Identity:</label>
+                        <select id="staffUserSelect" class="form-input" style="width: 100%; padding: 11px 14px; border-radius: 10px; font-weight: 600; font-size: 0.92rem; background: var(--bg-secondary); border: 1.5px solid var(--border-color);">
                             <option value="tomi@gmail.com">Tomi (Main Admin) — tomi@gmail.com</option>
                         </select>
                     </div>
 
                     <!-- Password / PIN Input -->
-                    <div style="margin-bottom: 16px;">
-                        <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px; display: block; text-align: left;">Password / Access Code (Default: 1234):</label>
-                        <input type="password" id="pinKeyboardInput" maxlength="20" placeholder="Enter Password or PIN" style="width: 100%; text-align: center; font-size: 1.3rem; letter-spacing: 4px; font-weight: 700; padding: 10px; border-radius: 10px; border: 2px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary);" autofocus />
+                    <div style="margin-bottom: 20px; text-align: left;">
+                        <label style="font-size: 0.82rem; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; display: block;">Access Password / PIN:</label>
+                        <input type="password" id="pinKeyboardInput" maxlength="20" placeholder="••••••••" style="width: 100%; text-align: center; font-size: 1.3rem; letter-spacing: 6px; font-weight: 700; padding: 12px; border-radius: 10px; border: 1.5px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary);" autofocus required />
                     </div>
 
-                    <div id="pinErrorMsg" style="color: #e63946; font-size: 0.82rem; margin-bottom: 12px; min-height: 18px;"></div>
+                    <div id="pinErrorMsg" style="color: #e63946; font-size: 0.84rem; font-weight: 600; margin-bottom: 14px; text-align: center; min-height: 20px;"></div>
 
-                    <button type="submit" class="btn btn-primary" id="staffLoginBtn" style="width:100%; justify-content:center; font-size:1.05rem; padding:12px;">🔓 Login</button>
+                    <button type="submit" class="btn btn-primary" id="staffLoginBtn" style="width: 100%; justify-content: center; font-size: 1.05rem; font-weight: 700; padding: 13px; border-radius: 12px; box-shadow: 0 4px 12px rgba(212, 163, 115, 0.3);">
+                        🔓 Sign In to Control Center
+                    </button>
                 </form>
             </div>
         </div>

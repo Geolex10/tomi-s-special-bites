@@ -654,7 +654,7 @@ window.closeAllModals = function () {
     const editItemModal = document.getElementById('editItemModal');
     if (editItemModal) editItemModal.style.display = 'none';
     pinState.entered = '';
-    updatePinDisplay();
+    if (typeof updatePinDisplay === 'function') updatePinDisplay();
 };
 
 window.closeEditItemModal = function () {
@@ -726,7 +726,10 @@ async function initAdminToggle() {
 }
 
 window.handleStaffLoginSubmit = function (e) {
-    if (e) e.preventDefault();
+    if (e) {
+        if (typeof e.preventDefault === 'function') e.preventDefault();
+        if (typeof e.stopPropagation === 'function') e.stopPropagation();
+    }
 
     const selectEl = document.getElementById('staffUserSelect');
     const inputEl = document.getElementById('pinKeyboardInput');
@@ -736,7 +739,7 @@ window.handleStaffLoginSubmit = function (e) {
     const enteredPass = inputEl ? inputEl.value.trim() : '';
 
     if (!enteredPass) {
-        if (errEl) errEl.textContent = 'Please enter your password or PIN code.';
+        if (errEl) errEl.textContent = 'Please enter your access password or PIN code.';
         if (inputEl) inputEl.focus();
         return false;
     }
@@ -748,7 +751,7 @@ window.handleStaffLoginSubmit = function (e) {
 
     const matchedUser = users.find(u => u.email && u.email.toLowerCase() === selectedEmail);
 
-    // Strict Password Check
+    // Strict Password Validation
     const isCorrect = matchedUser 
         ? (matchedUser.passwordCode === enteredPass) 
         : (enteredPass === '1234');
