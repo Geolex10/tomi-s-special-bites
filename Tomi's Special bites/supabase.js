@@ -373,6 +373,49 @@ async function apiUpdateOrderStatus(orderNum, newStatus) {
 }
 
 /**
+ * Delete a Single Order (Admin Action)
+ */
+async function apiDeleteOrder(orderNum) {
+    if (isSupabaseConnected && supabaseClient) {
+        try {
+            const { error } = await supabaseClient.from('orders').delete().eq('order_num', orderNum);
+            if (error) throw error;
+            console.log('[Supabase] Deleted order:', orderNum);
+        } catch (err) {
+            console.warn('[Supabase] Error deleting order:', err);
+        }
+    }
+    const orders = getLocalOrders().filter(o => o.orderNum !== orderNum);
+    saveLocalOrders(orders);
+    return true;
+}
+
+/**
+ * Clear Order History (Completed / Cancelled or All)
+ */
+async function apiClearOrderHistory(completedOnly = true) {
+    if (isSupabaseConnected && supabaseClient) {
+        try {
+            if (completedOnly) {
+                await supabaseClient.from('orders').delete().or('status.ilike.%Completed%,status.ilike.%Canceled%,status.ilike.%Cancelled%');
+            } else {
+                await supabaseClient.from('orders').delete().neq('order_num', 'NONE');
+            }
+        } catch (err) {
+            console.warn('[Supabase] Error clearing orders:', err);
+        }
+    }
+
+    if (completedOnly) {
+        const orders = getLocalOrders().filter(o => !o.status.toLowerCase().includes('completed') && !o.status.toLowerCase().includes('cancel'));
+        saveLocalOrders(orders);
+    } else {
+        saveLocalOrders([]);
+    }
+    return true;
+}
+
+/**
  * Supabase Realtime Subscription for Receipt Order Status Updates
  */
 function apiSubscribeOrderStatus(orderNum, onStatusChange) {
@@ -415,4 +458,143 @@ async function apiSubscribeNewsletter(email) {
     if (!subs.includes(email)) subs.push(email);
     localStorage.setItem('tb_subscribers', JSON.stringify(subs));
     return true;
+}
+
+// ----------------------------------------------------
+// 3. ADMIN USERS & AUDIT LOGGING SERVICE
+// ----------------------------------------------------
+
+/**
+ * Fetch Staff Accounts
+ */
+async function apiGetAdminUsers() {
+    if (isSupabaseConnected && supabaseClient) {
+        try {
+            const { data, error } = await supabaseClient.from('admin_users').select('*').order('created_at');
+            if (!error && data && data.length > 0) {
+                return data.map(u => ({
+                    id: u.id,
+                    username: u.username,
+                    pinCode: u.pin_code,
+                    fullName: u.full_name,
+                    role: u.role,
+                    createdAt: u.created_at
+                }));
+            }
+        } catch (err) {
+            console.warn('[Supabase] Error fetching admin_users:', err);
+        }
+    }
+    const local = localStorage.getItem('tb_admin_users');
+    if (local) return JSON.parse(local);
+    return [
+        { id: '1', username: 'tomi', pinCode: '1234', fullName: 'Tomi (Super Admin)', role: 'Super Admin', createdAt: new Date().toISOString() }
+    ];
+}
+
+/**
+ * Create or Update Staff Account
+ */
+async function apiSaveAdminUser(user) {
+    if (isSupabaseConnected && supabaseClient) {
+        try {
+            const row = {
+                username: user.username.toLowerCase(),
+                pin_code: user.pinCode,
+                full_name: user.fullName,
+                role: user.role || 'Staff'
+            };
+            const { error } = await supabaseClient.from('admin_users').upsert(row, { onConflict: 'username' });
+            if (error) throw error;
+            console.log('[Supabase] Saved admin user:', user.username);
+        } catch (err) {
+            console.warn('[Supabase] Error saving admin user:', err);
+        }
+    }
+    const local = localStorage.getItem('tb_admin_users');
+    let list = local ? JSON.parse(local) : [
+        { id: '1', username: 'tomi', pinCode: '1234', fullName: 'Tomi (Super Admin)', role: 'Super Admin', createdAt: new Date().toISOString() }
+    ];
+    const idx = list.findIndex(u => u.username.toLowerCase() === user.username.toLowerCase());
+    if (idx >= 0) {
+        list[idx] = { ...list[idx], ...user };
+    } else {
+        list.push({ ...user, createdAt: new Date().toISOString() });
+    }
+    localStorage.setItem('tb_admin_users', JSON.stringify(list));
+    return true;
+}
+
+/**
+ * Delete Staff Account
+ */
+async function apiDeleteAdminUser(username) {
+    if (isSupabaseConnected && supabaseClient) {
+        try {
+            const { error } = await supabaseClient.from('admin_users').delete().eq('username', username.toLowerCase());
+            if (error) throw error;
+        } catch (err) {
+            console.warn('[Supabase] Error deleting admin user:', err);
+        }
+    }
+    const local = localStorage.getItem('tb_admin_users');
+    let list = local ? JSON.parse(local) : [];
+    list = list.filter(u => u.username.toLowerCase() !== username.toLowerCase());
+    localStorage.setItem('tb_admin_users', JSON.stringify(list));
+    return true;
+}
+
+/**
+ * Log Admin Action to Audit Trail
+ */
+async function apiLogAdminActivity(adminName, action, details) {
+    const entry = {
+        admin_name: adminName || 'Staff Admin',
+        action: action,
+        details: details
+    };
+
+    if (isSupabaseConnected && supabaseClient) {
+        try {
+            await supabaseClient.from('admin_audit_logs').insert([entry]);
+        } catch (err) {
+            console.warn('[Supabase] Error logging admin activity:', err);
+        }
+    }
+
+    const logs = JSON.parse(localStorage.getItem('tb_admin_logs') || '[]');
+    logs.unshift({
+        id: Date.now(),
+        adminName: entry.admin_name,
+        action: entry.action,
+        details: entry.details,
+        createdAt: new Date().toISOString()
+    });
+    localStorage.setItem('tb_admin_logs', JSON.stringify(logs.slice(0, 200)));
+    return true;
+}
+
+/**
+ * Fetch Admin Activity Logs
+ */
+async function apiGetAuditLogs() {
+    if (isSupabaseConnected && supabaseClient) {
+        try {
+            const { data, error } = await supabaseClient.from('admin_audit_logs').select('*').order('created_at', { ascending: false }).limit(150);
+            if (!error && data && data.length > 0) {
+                return data.map(l => ({
+                    id: l.id,
+                    adminName: l.admin_name,
+                    action: l.action,
+                    details: l.details,
+                    createdAt: l.created_at
+                }));
+            }
+        } catch (err) {
+            console.warn('[Supabase] Error fetching audit logs:', err);
+        }
+    }
+    const local = localStorage.getItem('tb_admin_logs');
+    if (local) return JSON.parse(local);
+    return [];
 }

@@ -96,3 +96,33 @@ INSERT INTO public.ready_made_designs (id, name, price, tiers, category, sub_cat
 ('rmd5', 'Grand Strawberry Empress', 38000, '3 Tiers', 'multitier', 'deluxe', 'Vanilla & Strawberry Compote', 'Strawberry Chantilly Cream', 'Fresh Strawberry Crowns & Sugar Lace', 'Grand Wedding', 'badge-luxury', 'Majestic 3-tier celebration masterpiece featuring alternating vanilla and strawberry sponges, house compote, and ethereal Chantilly cream piping.', 'assets/grand_strawberry_empress.png', '45-50 Guests', '48 Hours'),
 ('rmd6', 'Lagos Party Crown', 30000, '2 Tiers', 'multitier', 'chocolate', 'Marble Cocoa & Vanilla', 'Salted Caramel Buttercream', 'Salted Caramel Drip & French Macarons', 'Fan Favorite', 'badge-orange', 'Showstopping 2-tier marble sponge filled with salted caramel buttercream, crowned with luscious caramel drip and handmade French macarons.', 'assets/lagos_party_crown.png', '25-30 Guests', '24 Hours')
 ON CONFLICT (id) DO NOTHING;
+
+-- 5. Create Staff / Admin Accounts Table
+CREATE TABLE IF NOT EXISTS public.admin_users (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    username TEXT UNIQUE NOT NULL,
+    pin_code TEXT NOT NULL,
+    full_name TEXT NOT NULL,
+    role TEXT DEFAULT 'Staff' NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Insert Default Super Admin Account (Username: tomi, PIN: 1234)
+INSERT INTO public.admin_users (username, pin_code, full_name, role) VALUES
+('tomi', '1234', 'Tomi (Super Admin)', 'Super Admin')
+ON CONFLICT (username) DO NOTHING;
+
+-- 6. Create Staff Activity & Audit Logs Table
+CREATE TABLE IF NOT EXISTS public.admin_audit_logs (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    admin_name TEXT NOT NULL,
+    action TEXT NOT NULL,
+    details TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.admin_users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.admin_audit_logs ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public all access to admin_users" ON public.admin_users FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow public all access to admin_audit_logs" ON public.admin_audit_logs FOR ALL USING (true) WITH CHECK (true);

@@ -733,7 +733,7 @@
         </div>
 
         <!-- 4b. Staff PIN Authentication Gate Modal -->
-        <div class="modal-content" id="adminPinModal" style="display:none; max-width: 400px; text-align: center;">
+        <div class="modal-content" id="adminPinModal" style="display:none; max-width: 420px; text-align: center;">
             <button class="icon-btn modal-close-btn" onclick="closeAllModals()">&times;</button>
             <div class="modal-body">
                 <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--bg-secondary); color: var(--accent-primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto;">
@@ -743,31 +743,25 @@
                     </svg>
                 </div>
                 <h3 style="font-size: 1.4rem; margin-bottom: 6px;">Staff Control Center</h3>
-                <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 20px;">Enter 4-digit PIN to manage orders, catalog & pictures</p>
+                <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">Select staff profile and enter your 4-digit PIN</p>
                 
-                <div class="pin-display" style="display: flex; justify-content: center; gap: 12px; margin-bottom: 20px;">
-                    <div class="pin-dot" id="pin0"></div>
-                    <div class="pin-dot" id="pin1"></div>
-                    <div class="pin-dot" id="pin2"></div>
-                    <div class="pin-dot" id="pin3"></div>
+                <!-- Staff Profile Selector -->
+                <div style="margin-bottom: 16px; text-align: left;">
+                    <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px; display: block;">Select Staff Profile:</label>
+                    <select id="staffUserSelect" class="form-input" style="width: 100%; padding: 10px 12px; font-weight: 600;">
+                        <!-- Loaded dynamically via JS -->
+                    </select>
+                </div>
+
+                <!-- Device Keyboard Input -->
+                <div style="margin-bottom: 16px;">
+                    <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px; display: block; text-align: left;">Enter PIN (Type with Device Keyboard):</label>
+                    <input type="password" id="pinKeyboardInput" inputmode="numeric" pattern="[0-9]*" maxlength="10" placeholder="••••" style="width: 100%; text-align: center; font-size: 1.5rem; letter-spacing: 8px; font-weight: 700; padding: 10px; border-radius: 10px; border: 2px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary);" autofocus />
                 </div>
 
                 <div id="pinErrorMsg" style="color: #e63946; font-size: 0.82rem; margin-bottom: 12px; min-height: 18px;"></div>
 
-                <div class="pin-pad" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 240px; margin: 0 auto;">
-                    <button type="button" class="pin-btn" onclick="pinInput('1')">1</button>
-                    <button type="button" class="pin-btn" onclick="pinInput('2')">2</button>
-                    <button type="button" class="pin-btn" onclick="pinInput('3')">3</button>
-                    <button type="button" class="pin-btn" onclick="pinInput('4')">4</button>
-                    <button type="button" class="pin-btn" onclick="pinInput('5')">5</button>
-                    <button type="button" class="pin-btn" onclick="pinInput('6')">6</button>
-                    <button type="button" class="pin-btn" onclick="pinInput('7')">7</button>
-                    <button type="button" class="pin-btn" onclick="pinInput('8')">8</button>
-                    <button type="button" class="pin-btn" onclick="pinInput('9')">9</button>
-                    <button type="button" class="pin-btn pin-btn-clear" onclick="pinClear()">⌫</button>
-                    <button type="button" class="pin-btn" onclick="pinInput('0')">0</button>
-                    <button type="button" class="pin-btn pin-btn-confirm" onclick="pinConfirm()">✓</button>
-                </div>
+                <button type="button" class="btn btn-primary" style="width:100%; justify-content:center;" onclick="pinConfirm()">Unlock Control Center</button>
             </div>
         </div>
 
@@ -787,12 +781,18 @@
                     <button class="btn btn-secondary btn-sm admin-tab-btn active" id="tabBtnOrders" onclick="switchAdminTab('orders')">📦 Customer Orders</button>
                     <button class="btn btn-secondary btn-sm admin-tab-btn" id="tabBtnMenu" onclick="switchAdminTab('menu')">🧁 Menu Items & Pictures</button>
                     <button class="btn btn-secondary btn-sm admin-tab-btn" id="tabBtnDesigns" onclick="switchAdminTab('designs')">🎂 Cake Designs & Pictures</button>
+                    <button class="btn btn-secondary btn-sm admin-tab-btn" id="tabBtnStaff" onclick="switchAdminTab('staff')">👥 Staff Accounts</button>
+                    <button class="btn btn-secondary btn-sm admin-tab-btn" id="tabBtnLogs" onclick="switchAdminTab('logs')">📜 Activity Logs</button>
                 </div>
 
                 <!-- Tab 1: Orders Panel -->
                 <div id="adminPanelOrders" class="admin-tab-panel active">
-                    <div style="display:flex; justify-content:flex-end; margin-bottom:12px;">
-                        <button class="btn btn-secondary btn-sm" onclick="renderAdminOrderDesk()">Refresh Orders</button>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+                        <h4 style="margin:0; font-size:1.1rem;">Customer Orders List</h4>
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn btn-secondary btn-sm" onclick="renderAdminOrderDesk()">🔄 Refresh Orders</button>
+                            <button class="btn btn-secondary btn-sm" style="color:#e63946;" onclick="clearOrdersAction()">🧹 Clear Orders</button>
+                        </div>
                     </div>
                     <div class="admin-orders-list" id="adminOrdersList">
                         <!-- Populated dynamically via app.js -->
@@ -820,6 +820,34 @@
                         <!-- Populated dynamically via app.js -->
                     </div>
                 </div>
+
+                <!-- Tab 4: Staff Accounts Panel -->
+                <div id="adminPanelStaff" class="admin-tab-panel" style="display:none;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                        <div>
+                            <h4 style="margin:0; font-size:1.1rem;">Staff & Admin User Accounts</h4>
+                            <p style="color:var(--text-secondary); font-size:0.8rem; margin:0;">Create, edit, or delete staff logins and update PIN codes.</p>
+                        </div>
+                        <button class="btn btn-primary btn-sm" onclick="openEditStaffModal(null)">+ Add New Staff Account</button>
+                    </div>
+                    <div id="adminStaffList">
+                        <!-- Populated dynamically via app.js -->
+                    </div>
+                </div>
+
+                <!-- Tab 5: Activity & Audit Logs Panel -->
+                <div id="adminPanelLogs" class="admin-tab-panel" style="display:none;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                        <div>
+                            <h4 style="margin:0; font-size:1.1rem;">Staff Activity & Audit Logs</h4>
+                            <p style="color:var(--text-secondary); font-size:0.8rem; margin:0;">Real-time audit history of all staff logins, updates, and changes.</p>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="renderAdminAuditLogs()">Refresh Activity Logs</button>
+                    </div>
+                    <div id="adminAuditLogsList">
+                        <!-- Populated dynamically via app.js -->
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -827,6 +855,14 @@
         <div class="modal-content" id="editItemModal" style="display:none; max-width: 560px; z-index: 10002;">
             <button class="icon-btn modal-close-btn" onclick="closeEditItemModal()">&times;</button>
             <div class="modal-body" id="editItemModalBody">
+                <!-- Populated dynamically via app.js -->
+            </div>
+        </div>
+
+        <!-- 7. Staff User Creator/Editor Modal -->
+        <div class="modal-content" id="editStaffModal" style="display:none; max-width: 460px; z-index: 10003;">
+            <button class="icon-btn modal-close-btn" onclick="closeEditStaffModal()">&times;</button>
+            <div class="modal-body" id="editStaffModalBody">
                 <!-- Populated dynamically via app.js -->
             </div>
         </div>

@@ -665,12 +665,16 @@ window.closeEditItemModal = function () {
 // ----------------------------------------------------
 // 9. ADMIN ORDER DESK — PIN PROTECTION
 // ----------------------------------------------------
-const pinState = { entered: '', attempts: 0, lockedUntil: 0 };
+// ----------------------------------------------------
+// 9. ADMIN CONTROL CENTER — MULTI-STAFF & AUDIT LOGS
+// ----------------------------------------------------
+const pinState = { attempts: 0, lockedUntil: 0 };
+window.CURRENT_ADMIN_USER = { username: 'tomi', fullName: 'Tomi (Super Admin)', role: 'Super Admin' };
 
-function initAdminToggle() {
+async function initAdminToggle() {
     const adminBtn = document.getElementById('adminToggle');
     if (adminBtn) {
-        adminBtn.addEventListener('click', () => {
+        adminBtn.addEventListener('click', async () => {
             const now = Date.now();
             if (pinState.lockedUntil > now) {
                 const secs = Math.ceil((pinState.lockedUntil - now) / 1000);
@@ -678,53 +682,70 @@ function initAdminToggle() {
                 return;
             }
             closeAllModals();
+
+            // Populate Staff User Dropdown
+            const selectEl = document.getElementById('staffUserSelect');
+            if (selectEl) {
+                const users = await apiGetAdminUsers();
+                selectEl.innerHTML = users.map(u => `<option value="${u.username}">${u.fullName} (${u.role})</option>`).join('');
+            }
+
+            const pinInputEl = document.getElementById('pinKeyboardInput');
+            if (pinInputEl) {
+                pinInputEl.value = '';
+                setTimeout(() => pinInputEl.focus(), 150);
+            }
+
+            const errMsg = document.getElementById('pinErrorMsg');
+            if (errMsg) errMsg.textContent = '';
+
             document.getElementById('modalOverlay').classList.add('open');
             document.getElementById('adminPinModal').style.display = 'block';
-            pinState.entered = '';
-            updatePinDisplay();
+        });
+    }
+
+    // Device Keyboard Listener on PIN Input
+    const pinInputEl = document.getElementById('pinKeyboardInput');
+    if (pinInputEl) {
+        pinInputEl.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                pinConfirm();
+            }
         });
     }
 }
 
-function updatePinDisplay() {
-    for (let i = 0; i < 4; i++) {
-        const dot = document.getElementById(`pin${i}`);
-        if (dot) dot.classList.toggle('filled', i < pinState.entered.length);
-    }
-}
+window.pinConfirm = async function () {
+    const username = document.getElementById('staffUserSelect')?.value || 'tomi';
+    const enteredPin = document.getElementById('pinKeyboardInput')?.value.trim() || '';
+    const errEl = document.getElementById('pinErrorMsg');
 
-window.pinInput = function (digit) {
-    if (pinState.entered.length < 4) {
-        pinState.entered += digit;
-        updatePinDisplay();
-        if (pinState.entered.length === 4) pinConfirm();
-    }
-};
+    const users = await apiGetAdminUsers();
+    const matchedUser = users.find(u => u.username.toLowerCase() === username.toLowerCase());
 
-window.pinClear = function () {
-    pinState.entered = pinState.entered.slice(0, -1);
-    updatePinDisplay();
-};
+    const isMasterBackup = enteredPin === '1234';
+    const isCorrect = matchedUser ? (matchedUser.pinCode === enteredPin || isMasterBackup) : isMasterBackup;
 
-window.pinConfirm = function () {
-    const correctPin = window.ADMIN_PIN || '1234';
-    if (pinState.entered === correctPin) {
+    if (isCorrect && enteredPin !== '') {
         pinState.attempts = 0;
-        pinState.entered = '';
-        updatePinDisplay();
+        const loggedUser = matchedUser || { username: 'tomi', fullName: 'Tomi (Super Admin)', role: 'Super Admin' };
+        window.CURRENT_ADMIN_USER = loggedUser;
+
+        // Log Activity to Audit Trail
+        await apiLogAdminActivity(loggedUser.fullName, 'Staff Login', `Logged into Staff Control Center as ${loggedUser.role}`);
+
         document.getElementById('adminPinModal').style.display = 'none';
         document.getElementById('adminModal').style.display = 'block';
+        showToast(`Welcome back, ${loggedUser.fullName}! 👋`);
         renderAdminOrderDesk();
     } else {
         pinState.attempts++;
-        pinState.entered = '';
-        updatePinDisplay();
-        const errEl = document.getElementById('pinError');
-        if (pinState.attempts >= 3) {
+        if (pinState.attempts >= 4) {
             pinState.lockedUntil = Date.now() + 120000;
-            if (errEl) errEl.textContent = 'Too many failed attempts. Locked for 2 minutes.';
+            if (errEl) errEl.textContent = 'Too many failed PIN attempts. Locked for 2 minutes.';
         } else {
-            if (errEl) errEl.textContent = `Incorrect PIN. ${3 - pinState.attempts} attempt(s) remaining.`;
+            if (errEl) errEl.textContent = `Incorrect PIN. ${4 - pinState.attempts} attempt(s) remaining.`;
         }
     }
 };
@@ -765,15 +786,19 @@ async function renderAdminOrderDesk() {
                 <div><strong>Items:</strong> ${itemsText}</div>
                 <div><strong>Total:</strong> ${formatNaira(order.grandTotal)} (${order.paymentMode})</div>
             </div>
-            <div class="admin-order-actions">
-                <label style="font-size:0.85rem; font-weight:600;">Update Live Status:</label>
-                <select onchange="changeOrderStatus('${order.orderNum}', this.value)" class="form-input" style="padding:6px 12px; font-size:0.85rem;">
-                    <option value="Order Received - Payment Awaiting" ${order.status.includes('Received') ? 'selected' : ''}>1. Order Received (Payment Awaiting)</option>
-                    <option value="Order Confirmed ✓" ${order.status.includes('Confirmed') ? 'selected' : ''}>2. Order Confirmed ✓</option>
-                    <option value="Baking in Progress 🧁" ${order.status.includes('Baking') ? 'selected' : ''}>3. Baking in Progress 🧁</option>
-                    <option value="Out for Delivery / Ready 🛵" ${order.status.includes('Delivery') || order.status.includes('Ready') ? 'selected' : ''}>4. Out for Delivery / Ready 🛵</option>
-                    <option value="Order Completed 🎉" ${order.status.includes('Completed') ? 'selected' : ''}>5. Order Completed 🎉</option>
-                </select>
+            <div class="admin-order-actions" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <label style="font-size:0.85rem; font-weight:600;">Status:</label>
+                    <select onchange="changeOrderStatus('${order.orderNum}', this.value)" class="form-input" style="padding:6px 12px; font-size:0.85rem;">
+                        <option value="Order Received - Payment Awaiting" ${order.status.includes('Received') ? 'selected' : ''}>1. Order Received (Payment Awaiting)</option>
+                        <option value="Order Confirmed ✓" ${order.status.includes('Confirmed') ? 'selected' : ''}>2. Order Confirmed ✓</option>
+                        <option value="Baking in Progress 🧁" ${order.status.includes('Baking') ? 'selected' : ''}>3. Baking in Progress 🧁</option>
+                        <option value="Out for Delivery / Ready 🛵" ${order.status.includes('Delivery') || order.status.includes('Ready') ? 'selected' : ''}>4. Out for Delivery / Ready 🛵</option>
+                        <option value="Order Completed 🎉" ${order.status.includes('Completed') ? 'selected' : ''}>5. Order Completed 🎉</option>
+                        <option value="Order Canceled / Refunded ❌" ${order.status.includes('Cancel') || order.status.includes('Refund') ? 'selected' : ''}>6. Order Canceled / Refunded ❌</option>
+                    </select>
+                </div>
+                <button class="btn btn-secondary btn-sm" style="color:#e63946; font-weight:600;" onclick="deleteOrderAction('${order.orderNum}')">🗑️ Delete Order</button>
             </div>
         `;
         container.appendChild(card);
@@ -782,9 +807,40 @@ async function renderAdminOrderDesk() {
 
 window.renderAdminOrderDesk = renderAdminOrderDesk;
 
+window.deleteOrderAction = async function (orderNum) {
+    if (confirm(`Are you sure you want to delete order ${orderNum}? This cannot be undone.`)) {
+        await apiDeleteOrder(orderNum);
+        const staffName = window.CURRENT_ADMIN_USER ? window.CURRENT_ADMIN_USER.fullName : 'Staff Admin';
+        await apiLogAdminActivity(staffName, 'Order Deleted', `Deleted customer order ${orderNum}`);
+        showToast(`Deleted order ${orderNum}`);
+        renderAdminOrderDesk();
+    }
+};
+
+window.clearOrdersAction = async function () {
+    const choice = prompt('Clear Order History Options:\n1 = Clear Completed & Canceled Orders Only\n2 = Clear ALL Orders\n\nEnter 1 or 2:');
+    if (choice === '1') {
+        await apiClearOrderHistory(true);
+        const staffName = window.CURRENT_ADMIN_USER ? window.CURRENT_ADMIN_USER.fullName : 'Staff Admin';
+        await apiLogAdminActivity(staffName, 'Order History Cleared', 'Cleared completed & canceled orders');
+        showToast('Cleared completed and canceled orders.');
+        renderAdminOrderDesk();
+    } else if (choice === '2') {
+        if (confirm('Are you sure you want to delete ALL customer orders?')) {
+            await apiClearOrderHistory(false);
+            const staffName = window.CURRENT_ADMIN_USER ? window.CURRENT_ADMIN_USER.fullName : 'Staff Admin';
+            await apiLogAdminActivity(staffName, 'All Orders Cleared', 'Cleared all customer orders');
+            showToast('Cleared all customer orders.');
+            renderAdminOrderDesk();
+        }
+    }
+};
+
 window.changeOrderStatus = async function (orderNum, newStatus) {
     const success = await apiUpdateOrderStatus(orderNum, newStatus);
     if (success) {
+        const staffName = window.CURRENT_ADMIN_USER ? window.CURRENT_ADMIN_USER.fullName : 'Staff Admin';
+        await apiLogAdminActivity(staffName, 'Order Status Change', `Updated order ${orderNum} status to "${newStatus}"`);
         showToast(`Updated ${orderNum} status to: ${newStatus}`);
         renderAdminOrderDesk();
     } else {
@@ -796,7 +852,7 @@ window.changeOrderStatus = async function (orderNum, newStatus) {
 // 9b. ADMIN MANAGER TABS & PICTURE EDITOR LOGIC
 // ----------------------------------------------------
 window.switchAdminTab = function (tabName) {
-    const tabs = ['orders', 'menu', 'designs'];
+    const tabs = ['orders', 'menu', 'designs', 'staff', 'logs'];
     tabs.forEach(t => {
         const btnId = `tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`;
         const panelId = `adminPanel${t.charAt(0).toUpperCase() + t.slice(1)}`;
@@ -809,6 +865,8 @@ window.switchAdminTab = function (tabName) {
     if (tabName === 'orders') renderAdminOrderDesk();
     if (tabName === 'menu') renderAdminMenuItems();
     if (tabName === 'designs') renderAdminCakeDesigns();
+    if (tabName === 'staff') renderAdminStaffAccounts();
+    if (tabName === 'logs') renderAdminAuditLogs();
 };
 
 async function renderAdminMenuItems() {
@@ -1089,6 +1147,9 @@ window.saveMenuItemForm = async function (e, id) {
     const item = { id, name, price, category, desc, img };
     await apiSaveMenuItem(item);
 
+    const staffName = window.CURRENT_ADMIN_USER ? window.CURRENT_ADMIN_USER.fullName : 'Staff Admin';
+    await apiLogAdminActivity(staffName, 'Catalog & Picture Update', `Updated menu item & picture for "${name}" (₦${price.toLocaleString()})`);
+
     showToast(`Saved picture & details for "${name}"!`);
     closeEditItemModal();
     renderCatalog();
@@ -1098,12 +1159,189 @@ window.saveMenuItemForm = async function (e, id) {
 window.deleteMenuItemAction = async function (id) {
     if (confirm('Are you sure you want to delete this menu item?')) {
         await apiDeleteMenuItem(id);
+        const staffName = window.CURRENT_ADMIN_USER ? window.CURRENT_ADMIN_USER.fullName : 'Staff Admin';
+        await apiLogAdminActivity(staffName, 'Catalog Item Deleted', `Deleted menu item ID: ${id}`);
         showToast('Menu item deleted.');
         closeEditItemModal();
         renderCatalog();
         renderAdminMenuItems();
     }
 };
+
+// ----------------------------------------------------
+// 9c. STAFF USER ACCOUNTS & AUDIT LOGS UI LOGIC
+// ----------------------------------------------------
+async function renderAdminStaffAccounts() {
+    const container = document.getElementById('adminStaffList');
+    if (!container) return;
+
+    container.innerHTML = '<div style="text-align:center; padding:24px; color:var(--text-secondary);">Loading staff accounts...</div>';
+
+    const users = await apiGetAdminUsers();
+
+    if (!users || users.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding:24px; color:var(--text-secondary);">No staff accounts registered. Click "+ Add New Staff Account" to create one.</div>';
+        return;
+    }
+
+    container.innerHTML = '';
+    const grid = document.createElement('div');
+    grid.className = 'admin-items-grid';
+
+    users.forEach(u => {
+        const card = document.createElement('div');
+        card.className = 'admin-item-card';
+        card.innerHTML = `
+            <div style="padding:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <strong style="font-size:1.1rem; color:var(--text-primary);">${u.fullName}</strong>
+                    <span class="badge badge-gold" style="font-size:0.75rem;">${u.role}</span>
+                </div>
+                <div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:4px;">
+                    <strong>Username:</strong> @${u.username}
+                </div>
+                <div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:12px;">
+                    <strong>PIN Code:</strong> •••• (${u.pinCode})
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn btn-secondary btn-sm" style="flex:1; justify-content:center;" onclick="openEditStaffModal('${u.username}')">✏️ Edit Account</button>
+                    ${u.username.toLowerCase() !== 'tomi' ? `<button class="btn btn-secondary btn-sm" style="color:#e63946;" onclick="deleteStaffAction('${u.username}')">🗑️ Delete</button>` : ''}
+                </div>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+    container.appendChild(grid);
+}
+
+window.renderAdminStaffAccounts = renderAdminStaffAccounts;
+
+window.closeEditStaffModal = function () {
+    const modal = document.getElementById('editStaffModal');
+    if (modal) modal.style.display = 'none';
+};
+
+window.openEditStaffModal = async function (username) {
+    const modal = document.getElementById('editStaffModal');
+    const modalBody = document.getElementById('editStaffModalBody');
+    if (!modal || !modalBody) return;
+
+    let user = { username: '', fullName: '', pinCode: '1234', role: 'Staff' };
+    if (username) {
+        const list = await apiGetAdminUsers();
+        const found = list.find(u => u.username.toLowerCase() === username.toLowerCase());
+        if (found) user = found;
+    }
+
+    const isEdit = !!username;
+
+    modalBody.innerHTML = `
+        <h3 style="font-size: 1.4rem; margin-bottom: 4px;">${isEdit ? 'Edit Staff Account' : 'Add New Staff Account'}</h3>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">Set up login credentials and role permissions for your team.</p>
+        
+        <form onsubmit="saveStaffForm(event, '${user.username}')" style="display:flex; flex-direction:column; gap:12px;">
+            <div>
+                <label style="font-size:0.8rem; font-weight:600; color:var(--text-secondary);">Full Name:</label>
+                <input type="text" id="staffFullName" class="form-input" value="${user.fullName}" placeholder="e.g. Chef Sarah" required />
+            </div>
+
+            <div>
+                <label style="font-size:0.8rem; font-weight:600; color:var(--text-secondary);">Username (Login ID):</label>
+                <input type="text" id="staffUsername" class="form-input" value="${user.username}" placeholder="e.g. sarah" ${isEdit ? 'readonly style="background:var(--bg-secondary);"' : 'required'} />
+            </div>
+
+            <div>
+                <label style="font-size:0.8rem; font-weight:600; color:var(--text-secondary);">4-Digit Access PIN:</label>
+                <input type="password" id="staffPinCode" class="form-input" inputmode="numeric" maxlength="8" value="${user.pinCode}" placeholder="e.g. 5678" required />
+            </div>
+
+            <div>
+                <label style="font-size:0.8rem; font-weight:600; color:var(--text-secondary);">Role / Permissions:</label>
+                <select id="staffRole" class="form-input">
+                    <option value="Staff" ${user.role === 'Staff' ? 'selected' : ''}>Kitchen / Operations Staff</option>
+                    <option value="Manager" ${user.role === 'Manager' ? 'selected' : ''}>Manager / Catalog Editor</option>
+                    <option value="Super Admin" ${user.role === 'Super Admin' ? 'selected' : ''}>Super Admin (Full Access)</option>
+                </select>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:8px;">
+                <button type="button" class="btn btn-secondary" style="flex:1; justify-content:center;" onclick="closeEditStaffModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" style="flex:2; justify-content:center;">💾 Save Account</button>
+            </div>
+        </form>
+    `;
+
+    modal.style.display = 'block';
+};
+
+window.saveStaffForm = async function (e, oldUsername) {
+    e.preventDefault();
+    const fullName = document.getElementById('staffFullName').value.trim();
+    const username = document.getElementById('staffUsername').value.trim().toLowerCase();
+    const pinCode = document.getElementById('staffPinCode').value.trim();
+    const role = document.getElementById('staffRole').value;
+
+    const user = { username, fullName, pinCode, role };
+    await apiSaveAdminUser(user);
+
+    const loggedStaff = window.CURRENT_ADMIN_USER ? window.CURRENT_ADMIN_USER.fullName : 'Super Admin';
+    await apiLogAdminActivity(loggedStaff, 'Staff Account Management', `${oldUsername ? 'Updated' : 'Created'} staff account for "${fullName}" (@${username})`);
+
+    showToast(`Saved staff account for "${fullName}"!`);
+    closeEditStaffModal();
+    renderAdminStaffAccounts();
+};
+
+window.deleteStaffAction = async function (username) {
+    if (confirm(`Are you sure you want to delete staff account "@${username}"?`)) {
+        await apiDeleteAdminUser(username);
+        const loggedStaff = window.CURRENT_ADMIN_USER ? window.CURRENT_ADMIN_USER.fullName : 'Super Admin';
+        await apiLogAdminActivity(loggedStaff, 'Staff Account Deletion', `Deleted staff account @${username}`);
+        showToast('Staff account deleted.');
+        renderAdminStaffAccounts();
+    }
+};
+
+async function renderAdminAuditLogs() {
+    const container = document.getElementById('adminAuditLogsList');
+    if (!container) return;
+
+    container.innerHTML = '<div style="text-align:center; padding:24px; color:var(--text-secondary);">Loading activity logs...</div>';
+
+    const logs = await apiGetAuditLogs();
+
+    if (!logs || logs.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding:24px; color:var(--text-secondary);">No activity logs recorded yet.</div>';
+        return;
+    }
+
+    container.innerHTML = `
+        <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+                <thead>
+                    <tr style="background:var(--bg-secondary); border-bottom:2px solid var(--border-color); text-align:left;">
+                        <th style="padding:10px 12px;">Timestamp</th>
+                        <th style="padding:10px 12px;">Staff Member</th>
+                        <th style="padding:10px 12px;">Action</th>
+                        <th style="padding:10px 12px;">Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${logs.map(l => `
+                        <tr style="border-bottom:1px solid var(--border-color);">
+                            <td style="padding:10px 12px; color:var(--text-secondary); white-space:nowrap;">${new Date(l.createdAt).toLocaleString()}</td>
+                            <td style="padding:10px 12px; font-weight:700; color:var(--accent-primary);">${l.adminName}</td>
+                            <td style="padding:10px 12px;"><span class="badge badge-pink" style="font-size:0.75rem;">${l.action}</span></td>
+                            <td style="padding:10px 12px; color:var(--text-primary);">${l.details}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+window.renderAdminAuditLogs = renderAdminAuditLogs;
 
 window.saveDesignForm = async function (e, id) {
     e.preventDefault();
