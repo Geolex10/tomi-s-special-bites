@@ -190,7 +190,7 @@ header {
 .nav-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 16px 24px;
+    padding: 10px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -199,15 +199,15 @@ header {
 .logo {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 1.5rem;
+    gap: 8px;
+    font-size: 1.25rem;
     font-weight: 700;
     color: var(--text-primary);
 }
 
 .logo-img {
-    height: 42px;
-    width: 42px;
+    height: 34px;
+    width: 34px;
     object-fit: contain;
     border-radius: 50%;
     transition: var(--transition-quick);
