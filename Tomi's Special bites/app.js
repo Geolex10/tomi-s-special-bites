@@ -669,7 +669,7 @@ window.closeEditItemModal = function () {
 // 9. ADMIN CONTROL CENTER — MULTI-STAFF & AUDIT LOGS
 // ----------------------------------------------------
 const pinState = { attempts: 0, lockedUntil: 0 };
-window.CURRENT_ADMIN_USER = { username: 'tomi', fullName: 'Tomi (Super Admin)', role: 'Super Admin' };
+window.CURRENT_ADMIN_USER = { email: 'tomi@gmail.com', fullName: 'Tomi (Main Admin)', role: 'Super Admin' };
 
 async function initAdminToggle() {
     const adminBtn = document.getElementById('adminToggle');
@@ -683,11 +683,14 @@ async function initAdminToggle() {
             }
             closeAllModals();
 
-            // Populate Staff User Dropdown
+            // Populate Staff User Dropdown with Gmail Identities
             const selectEl = document.getElementById('staffUserSelect');
             if (selectEl) {
                 const users = await apiGetAdminUsers();
-                selectEl.innerHTML = users.map(u => `<option value="${u.username}">${u.fullName} (${u.role})</option>`).join('');
+                const list = (users && users.length > 0) ? users : [
+                    { email: 'tomi@gmail.com', passwordCode: '1234', fullName: 'Tomi (Main Admin)', role: 'Super Admin' }
+                ];
+                selectEl.innerHTML = list.map(u => `<option value="${u.email}">${u.fullName} (${u.email})</option>`).join('');
             }
 
             const pinInputEl = document.getElementById('pinKeyboardInput');
@@ -704,7 +707,7 @@ async function initAdminToggle() {
         });
     }
 
-    // Device Keyboard Listener on PIN Input
+    // Device Keyboard Listener on Password / PIN Input
     const pinInputEl = document.getElementById('pinKeyboardInput');
     if (pinInputEl) {
         pinInputEl.addEventListener('keypress', (e) => {
@@ -717,23 +720,23 @@ async function initAdminToggle() {
 }
 
 window.pinConfirm = async function () {
-    const username = document.getElementById('staffUserSelect')?.value || 'tomi';
-    const enteredPin = document.getElementById('pinKeyboardInput')?.value.trim() || '';
+    const selectedEmail = document.getElementById('staffUserSelect')?.value || 'tomi@gmail.com';
+    const enteredPass = document.getElementById('pinKeyboardInput')?.value.trim() || '';
     const errEl = document.getElementById('pinErrorMsg');
 
     const users = await apiGetAdminUsers();
-    const matchedUser = users.find(u => u.username.toLowerCase() === username.toLowerCase());
+    const matchedUser = users.find(u => u.email.toLowerCase() === selectedEmail.toLowerCase());
 
-    const isMasterBackup = enteredPin === '1234';
-    const isCorrect = matchedUser ? (matchedUser.pinCode === enteredPin || isMasterBackup) : isMasterBackup;
+    const isMasterBackup = enteredPass === '1234';
+    const isCorrect = matchedUser ? (matchedUser.passwordCode === enteredPass || isMasterBackup) : isMasterBackup;
 
-    if (isCorrect && enteredPin !== '') {
+    if (isCorrect && enteredPass !== '') {
         pinState.attempts = 0;
-        const loggedUser = matchedUser || { username: 'tomi', fullName: 'Tomi (Super Admin)', role: 'Super Admin' };
+        const loggedUser = matchedUser || { email: selectedEmail, fullName: 'Tomi (Main Admin)', role: 'Super Admin' };
         window.CURRENT_ADMIN_USER = loggedUser;
 
         // Log Activity to Audit Trail
-        await apiLogAdminActivity(loggedUser.fullName, 'Staff Login', `Logged into Staff Control Center as ${loggedUser.role}`);
+        await apiLogAdminActivity(loggedUser.fullName, 'Staff Login', `Logged into Staff Control Center using ${loggedUser.email}`);
 
         document.getElementById('adminPinModal').style.display = 'none';
         document.getElementById('adminModal').style.display = 'block';
@@ -743,9 +746,9 @@ window.pinConfirm = async function () {
         pinState.attempts++;
         if (pinState.attempts >= 4) {
             pinState.lockedUntil = Date.now() + 120000;
-            if (errEl) errEl.textContent = 'Too many failed PIN attempts. Locked for 2 minutes.';
+            if (errEl) errEl.textContent = 'Too many failed login attempts. Locked for 2 minutes.';
         } else {
-            if (errEl) errEl.textContent = `Incorrect PIN. ${4 - pinState.attempts} attempt(s) remaining.`;
+            if (errEl) errEl.textContent = `Incorrect password/PIN. ${4 - pinState.attempts} attempt(s) remaining.`;
         }
     }
 };
@@ -1191,6 +1194,7 @@ async function renderAdminStaffAccounts() {
     users.forEach(u => {
         const card = document.createElement('div');
         card.className = 'admin-item-card';
+        const isMainAdmin = u.email.toLowerCase().includes('tomi');
         card.innerHTML = `
             <div style="padding:16px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -1198,14 +1202,14 @@ async function renderAdminStaffAccounts() {
                     <span class="badge badge-gold" style="font-size:0.75rem;">${u.role}</span>
                 </div>
                 <div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:4px;">
-                    <strong>Username:</strong> @${u.username}
+                    <strong>Gmail Identity:</strong> ${u.email}
                 </div>
                 <div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:12px;">
-                    <strong>PIN Code:</strong> •••• (${u.pinCode})
+                    <strong>Password/PIN:</strong> •••• (${u.passwordCode})
                 </div>
                 <div style="display:flex; gap:8px;">
-                    <button class="btn btn-secondary btn-sm" style="flex:1; justify-content:center;" onclick="openEditStaffModal('${u.username}')">✏️ Edit Account</button>
-                    ${u.username.toLowerCase() !== 'tomi' ? `<button class="btn btn-secondary btn-sm" style="color:#e63946;" onclick="deleteStaffAction('${u.username}')">🗑️ Delete</button>` : ''}
+                    <button class="btn btn-secondary btn-sm" style="flex:1; justify-content:center;" onclick="openEditStaffModal('${u.email}')">✏️ Edit Account</button>
+                    ${!isMainAdmin ? `<button class="btn btn-secondary btn-sm" style="color:#e63946;" onclick="deleteStaffAction('${u.email}')">🗑️ Delete</button>` : ''}
                 </div>
             </div>
         `;
@@ -1221,38 +1225,38 @@ window.closeEditStaffModal = function () {
     if (modal) modal.style.display = 'none';
 };
 
-window.openEditStaffModal = async function (username) {
+window.openEditStaffModal = async function (email) {
     const modal = document.getElementById('editStaffModal');
     const modalBody = document.getElementById('editStaffModalBody');
     if (!modal || !modalBody) return;
 
-    let user = { username: '', fullName: '', pinCode: '1234', role: 'Staff' };
-    if (username) {
+    let user = { email: '', fullName: '', passwordCode: '1234', role: 'Staff' };
+    if (email) {
         const list = await apiGetAdminUsers();
-        const found = list.find(u => u.username.toLowerCase() === username.toLowerCase());
+        const found = list.find(u => u.email.toLowerCase() === email.toLowerCase());
         if (found) user = found;
     }
 
-    const isEdit = !!username;
+    const isEdit = !!email;
 
     modalBody.innerHTML = `
         <h3 style="font-size: 1.4rem; margin-bottom: 4px;">${isEdit ? 'Edit Staff Account' : 'Add New Staff Account'}</h3>
-        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">Set up login credentials and role permissions for your team.</p>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">Assign staff role permissions and password using their Gmail address.</p>
         
-        <form onsubmit="saveStaffForm(event, '${user.username}')" style="display:flex; flex-direction:column; gap:12px;">
+        <form onsubmit="saveStaffForm(event, '${user.email}')" style="display:flex; flex-direction:column; gap:12px;">
             <div>
                 <label style="font-size:0.8rem; font-weight:600; color:var(--text-secondary);">Full Name:</label>
-                <input type="text" id="staffFullName" class="form-input" value="${user.fullName}" placeholder="e.g. Chef Sarah" required />
+                <input type="text" id="staffFullName" class="form-input" value="${user.fullName}" placeholder="e.g. Sarah Johnson" required />
             </div>
 
             <div>
-                <label style="font-size:0.8rem; font-weight:600; color:var(--text-secondary);">Username (Login ID):</label>
-                <input type="text" id="staffUsername" class="form-input" value="${user.username}" placeholder="e.g. sarah" ${isEdit ? 'readonly style="background:var(--bg-secondary);"' : 'required'} />
+                <label style="font-size:0.8rem; font-weight:600; color:var(--text-secondary);">Gmail Address (Login Identity):</label>
+                <input type="email" id="staffEmail" class="form-input" value="${user.email}" placeholder="e.g. sarah@gmail.com" ${isEdit ? 'readonly style="background:var(--bg-secondary);"' : 'required'} />
             </div>
 
             <div>
-                <label style="font-size:0.8rem; font-weight:600; color:var(--text-secondary);">4-Digit Access PIN:</label>
-                <input type="password" id="staffPinCode" class="form-input" inputmode="numeric" maxlength="8" value="${user.pinCode}" placeholder="e.g. 5678" required />
+                <label style="font-size:0.8rem; font-weight:600; color:var(--text-secondary);">Password / Access Code:</label>
+                <input type="password" id="staffPasswordCode" class="form-input" value="${user.passwordCode}" placeholder="e.g. 5678 or pass123" required />
             </div>
 
             <div>
@@ -1274,29 +1278,29 @@ window.openEditStaffModal = async function (username) {
     modal.style.display = 'block';
 };
 
-window.saveStaffForm = async function (e, oldUsername) {
+window.saveStaffForm = async function (e, oldEmail) {
     e.preventDefault();
     const fullName = document.getElementById('staffFullName').value.trim();
-    const username = document.getElementById('staffUsername').value.trim().toLowerCase();
-    const pinCode = document.getElementById('staffPinCode').value.trim();
+    const email = document.getElementById('staffEmail').value.trim().toLowerCase();
+    const passwordCode = document.getElementById('staffPasswordCode').value.trim();
     const role = document.getElementById('staffRole').value;
 
-    const user = { username, fullName, pinCode, role };
+    const user = { email, fullName, passwordCode, role };
     await apiSaveAdminUser(user);
 
-    const loggedStaff = window.CURRENT_ADMIN_USER ? window.CURRENT_ADMIN_USER.fullName : 'Super Admin';
-    await apiLogAdminActivity(loggedStaff, 'Staff Account Management', `${oldUsername ? 'Updated' : 'Created'} staff account for "${fullName}" (@${username})`);
+    const loggedStaff = window.CURRENT_ADMIN_USER ? window.CURRENT_ADMIN_USER.fullName : 'Main Admin';
+    await apiLogAdminActivity(loggedStaff, 'Staff Account Management', `${oldEmail ? 'Updated' : 'Created'} staff account for "${fullName}" (${email}) with role ${role}`);
 
     showToast(`Saved staff account for "${fullName}"!`);
     closeEditStaffModal();
     renderAdminStaffAccounts();
 };
 
-window.deleteStaffAction = async function (username) {
-    if (confirm(`Are you sure you want to delete staff account "@${username}"?`)) {
-        await apiDeleteAdminUser(username);
-        const loggedStaff = window.CURRENT_ADMIN_USER ? window.CURRENT_ADMIN_USER.fullName : 'Super Admin';
-        await apiLogAdminActivity(loggedStaff, 'Staff Account Deletion', `Deleted staff account @${username}`);
+window.deleteStaffAction = async function (email) {
+    if (confirm(`Are you sure you want to delete staff account for "${email}"?`)) {
+        await apiDeleteAdminUser(email);
+        const loggedStaff = window.CURRENT_ADMIN_USER ? window.CURRENT_ADMIN_USER.fullName : 'Main Admin';
+        await apiLogAdminActivity(loggedStaff, 'Staff Account Deletion', `Deleted staff account ${email}`);
         showToast('Staff account deleted.');
         renderAdminStaffAccounts();
     }

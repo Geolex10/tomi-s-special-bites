@@ -465,19 +465,23 @@ async function apiSubscribeNewsletter(email) {
 // ----------------------------------------------------
 
 /**
- * Fetch Staff Accounts
+ * Fetch Staff Accounts (Gmail identities)
  */
 async function apiGetAdminUsers() {
+    const defaultAdmins = [
+        { id: '1', email: 'tomi@gmail.com', passwordCode: '1234', fullName: 'Tomi (Main Admin)', role: 'Super Admin', createdAt: new Date().toISOString() }
+    ];
+
     if (isSupabaseConnected && supabaseClient) {
         try {
             const { data, error } = await supabaseClient.from('admin_users').select('*').order('created_at');
             if (!error && data && data.length > 0) {
                 return data.map(u => ({
                     id: u.id,
-                    username: u.username,
-                    pinCode: u.pin_code,
-                    fullName: u.full_name,
-                    role: u.role,
+                    email: u.email || u.username || 'tomi@gmail.com',
+                    passwordCode: u.password_code || u.pin_code || '1234',
+                    fullName: u.full_name || 'Tomi (Main Admin)',
+                    role: u.role || 'Super Admin',
                     createdAt: u.created_at
                 }));
             }
@@ -486,40 +490,41 @@ async function apiGetAdminUsers() {
         }
     }
     const local = localStorage.getItem('tb_admin_users');
-    if (local) return JSON.parse(local);
-    return [
-        { id: '1', username: 'tomi', pinCode: '1234', fullName: 'Tomi (Super Admin)', role: 'Super Admin', createdAt: new Date().toISOString() }
-    ];
+    if (local) {
+        try {
+            const parsed = JSON.parse(local);
+            if (parsed && parsed.length > 0) return parsed;
+        } catch (e) {}
+    }
+    return defaultAdmins;
 }
 
 /**
- * Create or Update Staff Account
+ * Create or Update Staff Account using Gmail identity
  */
 async function apiSaveAdminUser(user) {
+    const email = user.email.toLowerCase().trim();
     if (isSupabaseConnected && supabaseClient) {
         try {
             const row = {
-                username: user.username.toLowerCase(),
-                pin_code: user.pinCode,
+                email: email,
+                password_code: user.passwordCode,
                 full_name: user.fullName,
                 role: user.role || 'Staff'
             };
-            const { error } = await supabaseClient.from('admin_users').upsert(row, { onConflict: 'username' });
+            const { error } = await supabaseClient.from('admin_users').upsert(row, { onConflict: 'email' });
             if (error) throw error;
-            console.log('[Supabase] Saved admin user:', user.username);
+            console.log('[Supabase] Saved admin user:', email);
         } catch (err) {
             console.warn('[Supabase] Error saving admin user:', err);
         }
     }
-    const local = localStorage.getItem('tb_admin_users');
-    let list = local ? JSON.parse(local) : [
-        { id: '1', username: 'tomi', pinCode: '1234', fullName: 'Tomi (Super Admin)', role: 'Super Admin', createdAt: new Date().toISOString() }
-    ];
-    const idx = list.findIndex(u => u.username.toLowerCase() === user.username.toLowerCase());
+    const list = await apiGetAdminUsers();
+    const idx = list.findIndex(u => u.email.toLowerCase() === email);
     if (idx >= 0) {
-        list[idx] = { ...list[idx], ...user };
+        list[idx] = { ...list[idx], ...user, email };
     } else {
-        list.push({ ...user, createdAt: new Date().toISOString() });
+        list.push({ ...user, email, createdAt: new Date().toISOString() });
     }
     localStorage.setItem('tb_admin_users', JSON.stringify(list));
     return true;
@@ -528,19 +533,19 @@ async function apiSaveAdminUser(user) {
 /**
  * Delete Staff Account
  */
-async function apiDeleteAdminUser(username) {
+async function apiDeleteAdminUser(email) {
+    const targetEmail = email.toLowerCase().trim();
     if (isSupabaseConnected && supabaseClient) {
         try {
-            const { error } = await supabaseClient.from('admin_users').delete().eq('username', username.toLowerCase());
+            const { error } = await supabaseClient.from('admin_users').delete().eq('email', targetEmail);
             if (error) throw error;
         } catch (err) {
             console.warn('[Supabase] Error deleting admin user:', err);
         }
     }
-    const local = localStorage.getItem('tb_admin_users');
-    let list = local ? JSON.parse(local) : [];
-    list = list.filter(u => u.username.toLowerCase() !== username.toLowerCase());
-    localStorage.setItem('tb_admin_users', JSON.stringify(list));
+    const list = await apiGetAdminUsers();
+    const filtered = list.filter(u => u.email.toLowerCase() !== targetEmail);
+    localStorage.setItem('tb_admin_users', JSON.stringify(filtered));
     return true;
 }
 

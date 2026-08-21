@@ -97,20 +97,20 @@ INSERT INTO public.ready_made_designs (id, name, price, tiers, category, sub_cat
 ('rmd6', 'Lagos Party Crown', 30000, '2 Tiers', 'multitier', 'chocolate', 'Marble Cocoa & Vanilla', 'Salted Caramel Buttercream', 'Salted Caramel Drip & French Macarons', 'Fan Favorite', 'badge-orange', 'Showstopping 2-tier marble sponge filled with salted caramel buttercream, crowned with luscious caramel drip and handmade French macarons.', 'assets/lagos_party_crown.png', '25-30 Guests', '24 Hours')
 ON CONFLICT (id) DO NOTHING;
 
--- 5. Create Staff / Admin Accounts Table
+-- 5. Create Staff / Admin Accounts Table (Gmail Identity)
 CREATE TABLE IF NOT EXISTS public.admin_users (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    username TEXT UNIQUE NOT NULL,
-    pin_code TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    password_code TEXT NOT NULL,
     full_name TEXT NOT NULL,
     role TEXT DEFAULT 'Staff' NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Insert Default Super Admin Account (Username: tomi, PIN: 1234)
-INSERT INTO public.admin_users (username, pin_code, full_name, role) VALUES
-('tomi', '1234', 'Tomi (Super Admin)', 'Super Admin')
-ON CONFLICT (username) DO NOTHING;
+-- Insert Default Main Admin Account (Gmail: tomi@gmail.com, Password: 1234)
+INSERT INTO public.admin_users (email, password_code, full_name, role) VALUES
+('tomi@gmail.com', '1234', 'Tomi (Main Admin)', 'Super Admin')
+ON CONFLICT (email) DO NOTHING;
 
 -- 6. Create Staff Activity & Audit Logs Table
 CREATE TABLE IF NOT EXISTS public.admin_audit_logs (
