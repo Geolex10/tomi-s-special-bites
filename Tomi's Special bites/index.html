@@ -55,7 +55,8 @@
                     </svg>
                 </button>
                 <!-- Staff Admin Control Center Button -->
-                <button class="icon-btn" id="adminToggle" title="Staff Control Center (Admin)" aria-label="Staff Control Center">
+                <button class="icon-btn" id="adminToggle" title="Staff Control Center (Admin)"
+                    aria-label="Staff Control Center">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -535,7 +536,9 @@
                 <ul>
                     <li><a href="#contact">Oye-Ekiti Kitchen</a></li>
                     <li><a href="#contact">Delivery Zone</a></li>
-                    <li><a href="javascript:void(0)" onclick="document.getElementById('adminToggle').click()" style="color:var(--accent-primary); font-weight:700;">🔒 Staff Control Center (Admin)</a></li>
+                    <li><a href="javascript:void(0)" onclick="document.getElementById('adminToggle').click()"
+                            style="color:var(--accent-primary); font-weight:700;">🔒 Staff Control Center (Admin)</a>
+                    </li>
                 </ul>
             </div>
             <div class="footer-col footer-newsletter">
@@ -673,7 +676,8 @@
                             <div class="form-group">
                                 <label for="custPayment">Payment Method</label>
                                 <select id="custPayment" class="form-input" required>
-                                    <option value="bank_transfer" selected>🏦 Bank Transfer (Moniepoint: 7046091762 - Ijamoyewa Precious Kanyinsola)
+                                    <option value="bank_transfer" selected>🏦 Bank Transfer (Moniepoint: 7046091762 -
+                                        Ijamoyewa Precious Kanyinsola)
                                     </option>
                                     <option value="cod">💵 Cash on Delivery / Pickup</option>
                                 </select>
@@ -733,38 +737,55 @@
         </div>
 
         <!-- 4b. Staff PIN Authentication Gate Modal -->
-        <div class="modal-content" id="adminPinModal" style="display:none; max-width: 420px; border-radius: 20px; overflow: hidden; box-shadow: var(--shadow-xl); border: 1px solid var(--border-color);">
+        <div class="modal-content" id="adminPinModal"
+            style="display:none; max-width: 420px; border-radius: 20px; overflow: hidden; box-shadow: var(--shadow-xl); border: 1px solid var(--border-color);">
             <button class="icon-btn modal-close-btn" onclick="closeAllModals()">&times;</button>
             <div class="modal-body" style="padding: 32px 28px;">
-                <form id="staffLoginForm" action="javascript:void(0)" onsubmit="handleStaffLoginSubmit(event); return false;">
+                <form id="staffLoginForm" action="javascript:void(0)"
+                    onsubmit="handleStaffLoginSubmit(event); return false;">
                     <div style="text-align: center; margin-bottom: 24px;">
-                        <div style="width: 54px; height: 54px; border-radius: 16px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color: #ffffff; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px auto; box-shadow: 0 8px 16px rgba(212, 163, 115, 0.3);">
-                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        <div
+                            style="width: 54px; height: 54px; border-radius: 16px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color: #ffffff; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px auto; box-shadow: 0 8px 16px rgba(212, 163, 115, 0.3);">
+                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                             </svg>
                         </div>
-                        <h3 style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">Staff Control Center</h3>
-                        <p style="color: var(--text-secondary); font-size: 0.85rem;">Sign in with your staff account credentials</p>
+                        <h3
+                            style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">
+                            Staff Control Center</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem;">Sign in with your staff account
+                            credentials</p>
                     </div>
 
                     <!-- Staff Gmail Selector -->
                     <div style="margin-bottom: 18px; text-align: left;">
-                        <label style="font-size: 0.82rem; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; display: block;">Select Staff Identity:</label>
-                        <select id="staffUserSelect" class="form-input" style="width: 100%; padding: 11px 14px; border-radius: 10px; font-weight: 600; font-size: 0.92rem; background: var(--bg-secondary); border: 1.5px solid var(--border-color);">
+                        <label
+                            style="font-size: 0.82rem; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; display: block;">Select
+                            Staff Identity:</label>
+                        <select id="staffUserSelect" class="form-input"
+                            style="width: 100%; padding: 11px 14px; border-radius: 10px; font-weight: 600; font-size: 0.92rem; background: var(--bg-secondary); border: 1.5px solid var(--border-color);">
                             <option value="tomi@gmail.com">Tomi (Main Admin) — tomi@gmail.com</option>
                         </select>
                     </div>
 
                     <!-- Password / PIN Input -->
                     <div style="margin-bottom: 20px; text-align: left;">
-                        <label style="font-size: 0.82rem; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; display: block;">Access Password / PIN:</label>
-                        <input type="password" id="pinKeyboardInput" maxlength="20" placeholder="••••••••" style="width: 100%; text-align: center; font-size: 1.3rem; letter-spacing: 6px; font-weight: 700; padding: 12px; border-radius: 10px; border: 1.5px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary);" autofocus required />
+                        <label
+                            style="font-size: 0.82rem; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; display: block;">Access
+                            Password / PIN:</label>
+                        <input type="password" id="pinKeyboardInput" maxlength="20" placeholder="••••••••"
+                            style="width: 100%; text-align: center; font-size: 1.3rem; letter-spacing: 6px; font-weight: 700; padding: 12px; border-radius: 10px; border: 1.5px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary);"
+                            autofocus required />
                     </div>
 
-                    <div id="pinErrorMsg" style="color: #e63946; font-size: 0.84rem; font-weight: 600; margin-bottom: 14px; text-align: center; min-height: 20px;"></div>
+                    <div id="pinErrorMsg"
+                        style="color: #e63946; font-size: 0.84rem; font-weight: 600; margin-bottom: 14px; text-align: center; min-height: 20px;">
+                    </div>
 
-                    <button type="submit" class="btn btn-primary" id="staffLoginBtn" style="width: 100%; justify-content: center; font-size: 1.05rem; font-weight: 700; padding: 13px; border-radius: 12px; box-shadow: 0 4px 12px rgba(212, 163, 115, 0.3);">
+                    <button type="submit" class="btn btn-primary" id="staffLoginBtn"
+                        style="width: 100%; justify-content: center; font-size: 1.05rem; font-weight: 700; padding: 13px; border-radius: 12px; box-shadow: 0 4px 12px rgba(212, 163, 115, 0.3);">
                         🔓 Sign In to Control Center
                     </button>
                 </form>
@@ -775,29 +796,41 @@
         <div class="modal-content" id="adminModal" style="display:none; max-width: 920px;">
             <button class="icon-btn modal-close-btn" onclick="closeAllModals()">&times;</button>
             <div class="modal-body">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+                <div
+                    style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
                     <div>
-                        <h3 style="font-size: 1.6rem; margin-bottom: 4px; color: var(--text-primary);">Staff Control Center</h3>
-                        <p style="color: var(--text-secondary); font-size: 0.88rem;">Manage live customer orders, catalog items, and cake design pictures.</p>
+                        <h3 style="font-size: 1.6rem; margin-bottom: 4px; color: var(--text-primary);">Staff Control
+                            Center</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.88rem;">Manage live customer orders,
+                            catalog items, and cake design pictures.</p>
                     </div>
                 </div>
 
                 <!-- Admin Tabs -->
-                <div class="admin-tabs" style="display:flex; gap:10px; margin-bottom:20px; border-bottom:1px solid var(--border-color); padding-bottom:12px; flex-wrap:wrap;">
-                    <button class="btn btn-secondary btn-sm admin-tab-btn active" id="tabBtnOrders" onclick="switchAdminTab('orders')">📦 Customer Orders</button>
-                    <button class="btn btn-secondary btn-sm admin-tab-btn" id="tabBtnMenu" onclick="switchAdminTab('menu')">🧁 Menu Items & Pictures</button>
-                    <button class="btn btn-secondary btn-sm admin-tab-btn" id="tabBtnDesigns" onclick="switchAdminTab('designs')">🎂 Cake Designs & Pictures</button>
-                    <button class="btn btn-secondary btn-sm admin-tab-btn" id="tabBtnStaff" onclick="switchAdminTab('staff')">👥 Staff Accounts</button>
-                    <button class="btn btn-secondary btn-sm admin-tab-btn" id="tabBtnLogs" onclick="switchAdminTab('logs')">📜 Activity Logs</button>
+                <div class="admin-tabs"
+                    style="display:flex; gap:10px; margin-bottom:20px; border-bottom:1px solid var(--border-color); padding-bottom:12px; flex-wrap:wrap;">
+                    <button class="btn btn-secondary btn-sm admin-tab-btn active" id="tabBtnOrders"
+                        onclick="switchAdminTab('orders')">📦 Customer Orders</button>
+                    <button class="btn btn-secondary btn-sm admin-tab-btn" id="tabBtnMenu"
+                        onclick="switchAdminTab('menu')">🧁 Menu Items & Pictures</button>
+                    <button class="btn btn-secondary btn-sm admin-tab-btn" id="tabBtnDesigns"
+                        onclick="switchAdminTab('designs')">🎂 Cake Designs & Pictures</button>
+                    <button class="btn btn-secondary btn-sm admin-tab-btn" id="tabBtnStaff"
+                        onclick="switchAdminTab('staff')">👥 Staff Accounts</button>
+                    <button class="btn btn-secondary btn-sm admin-tab-btn" id="tabBtnLogs"
+                        onclick="switchAdminTab('logs')">📜 Activity Logs</button>
                 </div>
 
                 <!-- Tab 1: Orders Panel -->
                 <div id="adminPanelOrders" class="admin-tab-panel active">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+                    <div
+                        style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
                         <h4 style="margin:0; font-size:1.1rem;">Customer Orders List</h4>
                         <div style="display:flex; gap:8px;">
-                            <button class="btn btn-secondary btn-sm" onclick="renderAdminOrderDesk()">🔄 Refresh Orders</button>
-                            <button class="btn btn-secondary btn-sm" style="color:#e63946;" onclick="clearOrdersAction()">🧹 Clear Orders</button>
+                            <button class="btn btn-secondary btn-sm" onclick="renderAdminOrderDesk()">🔄 Refresh
+                                Orders</button>
+                            <button class="btn btn-secondary btn-sm" style="color:#e63946;"
+                                onclick="clearOrdersAction()">🧹 Clear Orders</button>
                         </div>
                     </div>
                     <div class="admin-orders-list" id="adminOrdersList">
@@ -807,7 +840,8 @@
 
                 <!-- Tab 2: Menu Items & Pictures Panel -->
                 <div id="adminPanelMenu" class="admin-tab-panel" style="display:none;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                    <div
+                        style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
                         <h4 style="margin:0; font-size:1.1rem;">Bites & Pastry Catalog</h4>
                         <button class="btn btn-primary btn-sm" onclick="openEditMenuModal(null)">+ Add New Item</button>
                     </div>
@@ -818,9 +852,11 @@
 
                 <!-- Tab 3: Cake Designs & Pictures Panel -->
                 <div id="adminPanelDesigns" class="admin-tab-panel" style="display:none;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                    <div
+                        style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
                         <h4 style="margin:0; font-size:1.1rem;">Ready-Made Celebration Cake Catalog</h4>
-                        <button class="btn btn-primary btn-sm" onclick="openEditDesignModal(null)">+ Add New Cake Design</button>
+                        <button class="btn btn-primary btn-sm" onclick="openEditDesignModal(null)">+ Add New Cake
+                            Design</button>
                     </div>
                     <div class="admin-items-grid" id="adminDesignsItemsList">
                         <!-- Populated dynamically via app.js -->
@@ -829,12 +865,15 @@
 
                 <!-- Tab 4: Staff Accounts Panel -->
                 <div id="adminPanelStaff" class="admin-tab-panel" style="display:none;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                    <div
+                        style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
                         <div>
                             <h4 style="margin:0; font-size:1.1rem;">Staff & Admin User Accounts</h4>
-                            <p style="color:var(--text-secondary); font-size:0.8rem; margin:0;">Create, edit, or delete staff logins and update PIN codes.</p>
+                            <p style="color:var(--text-secondary); font-size:0.8rem; margin:0;">Create, edit, or delete
+                                staff logins and update PIN codes.</p>
                         </div>
-                        <button class="btn btn-primary btn-sm" onclick="openEditStaffModal(null)">+ Add New Staff Account</button>
+                        <button class="btn btn-primary btn-sm" onclick="openEditStaffModal(null)">+ Add New Staff
+                            Account</button>
                     </div>
                     <div id="adminStaffList">
                         <!-- Populated dynamically via app.js -->
@@ -843,12 +882,15 @@
 
                 <!-- Tab 5: Activity & Audit Logs Panel -->
                 <div id="adminPanelLogs" class="admin-tab-panel" style="display:none;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                    <div
+                        style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
                         <div>
                             <h4 style="margin:0; font-size:1.1rem;">Staff Activity & Audit Logs</h4>
-                            <p style="color:var(--text-secondary); font-size:0.8rem; margin:0;">Real-time audit history of all staff logins, updates, and changes.</p>
+                            <p style="color:var(--text-secondary); font-size:0.8rem; margin:0;">Real-time audit history
+                                of all staff logins, updates, and changes.</p>
                         </div>
-                        <button class="btn btn-secondary btn-sm" onclick="renderAdminAuditLogs()">Refresh Activity Logs</button>
+                        <button class="btn btn-secondary btn-sm" onclick="renderAdminAuditLogs()">Refresh Activity
+                            Logs</button>
                     </div>
                     <div id="adminAuditLogsList">
                         <!-- Populated dynamically via app.js -->
@@ -911,12 +953,65 @@
             publicKey: 'YOUR_EMAILJS_PUBLIC_KEY'
         };
 
-        // Admin Order Desk PIN (change this to your preferred 4-digit code)
+        // Admin Order Desk PIN
         window.ADMIN_PIN = '1234';
+
+        // Bulletproof Inline Staff Login Handler (Guarantees execution even on slow/cached live CDN)
+        window.handleStaffLoginSubmit = function (e) {
+            if (e) {
+                if (typeof e.preventDefault === 'function') e.preventDefault();
+                if (typeof e.stopPropagation === 'function') e.stopPropagation();
+            }
+            const selectEl = document.getElementById('staffUserSelect');
+            const inputEl = document.getElementById('pinKeyboardInput');
+            const errEl = document.getElementById('pinErrorMsg');
+
+            const selectedEmail = (selectEl && selectEl.value) ? selectEl.value.trim().toLowerCase() : 'tomi@gmail.com';
+            const enteredPass = inputEl ? inputEl.value.trim() : '';
+
+            if (!enteredPass) {
+                if (errEl) errEl.textContent = 'Please enter your access password or PIN code.';
+                if (inputEl) inputEl.focus();
+                return false;
+            }
+
+            let users = [];
+            try {
+                if (typeof getCachedAdmins === 'function') users = getCachedAdmins();
+            } catch (err) { }
+
+            if (!users || users.length === 0) {
+                try {
+                    const local = localStorage.getItem('tb_admin_users');
+                    if (local) users = JSON.parse(local);
+                } catch (err) { }
+            }
+            if (!users || users.length === 0) {
+                users = [{ id: '1', email: 'tomi@gmail.com', passwordCode: '1234', fullName: 'Tomi (Main Admin)', role: 'Super Admin' }];
+            }
+
+            const matchedUser = users.find(u => u.email && u.email.toLowerCase() === selectedEmail);
+            const isCorrect = matchedUser ? (matchedUser.passwordCode === enteredPass) : (enteredPass === '1234');
+
+            if (isCorrect) {
+                window.CURRENT_ADMIN_USER = matchedUser || { email: selectedEmail, fullName: 'Tomi (Main Admin)', role: 'Super Admin' };
+                const pinModal = document.getElementById('adminPinModal');
+                const adminModal = document.getElementById('adminModal');
+                if (pinModal) pinModal.style.display = 'none';
+                if (adminModal) adminModal.style.display = 'block';
+
+                if (typeof showToast === 'function') showToast(`Welcome back, ${window.CURRENT_ADMIN_USER.fullName}! 👋`);
+                if (typeof renderAdminOrderDesk === 'function') renderAdminOrderDesk();
+            } else {
+                if (errEl) errEl.textContent = `Incorrect password/PIN for ${selectedEmail}.`;
+            }
+            return false;
+        };
+        window.pinConfirm = window.handleStaffLoginSubmit;
     </script>
 
-    <script src="supabase.js"></script>
-    <script src="app.js"></script>
+    <script src="supabase.js?v=2.5"></script>
+    <script src="app.js?v=2.5"></script>
 </body>
 
 </html>
