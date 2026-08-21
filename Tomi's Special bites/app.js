@@ -1239,7 +1239,7 @@ async function renderAdminStaffAccounts() {
                     <strong>Gmail Identity:</strong> ${u.email}
                 </div>
                 <div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:12px;">
-                    <strong>Password/PIN:</strong> •••• (${u.passwordCode})
+                    <strong>Password / Access PIN:</strong> •••••••• (Protected 🔒)
                 </div>
                 <div style="display:flex; gap:8px;">
                     <button class="btn btn-secondary btn-sm" style="flex:1; justify-content:center;" onclick="openEditStaffModal('${u.email}')">✏️ Edit Account</button>
